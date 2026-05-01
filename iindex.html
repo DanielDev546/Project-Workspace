@@ -854,6 +854,48 @@
     <div class="main">
       <!-- LEFT PANEL -->
       <div class="left-panel">
+        <div class="sec-title" style="color: var(--accent)">
+          ✨ AI Magic Prompt
+        </div>
+        <div class="cgroup">
+          <div class="clabel">Describe your icon</div>
+          <textarea
+            id="aiPrompt"
+            class="cinp"
+            style="
+              height: 80px;
+              resize: none;
+              margin-bottom: 10px;
+              font-family: inherit;
+            "
+            placeholder="e.g. A red star with a gold border..."
+          ></textarea>
+          <button
+            class="icon-btn"
+            id="generateBtn"
+            onclick="generateWithAI()"
+            style="background: var(--accent); color: white; font-weight: bold"
+          >
+            Generate Icon
+          </button>
+          <div
+            id="aiStatus"
+            style="
+              font-size: 10px;
+              color: var(--text2);
+              margin-top: 8px;
+              text-align: center;
+            "
+          ></div>
+          <div class="sec-title">AI History</div>
+          <div
+            id="aiHistory"
+            style="padding: 0 16px; font-size: 11px; color: var(--text2)"
+          >
+            No icons generated yet.
+          </div>
+        </div>
+
         <div class="sec-title">Control Panel</div>
 
         <div class="cgroup">
@@ -1554,6 +1596,54 @@
     <div id="toast"></div>
 
     <script>
+      async function generateWithAI() {
+        const prompt = document.getElementById("aiPrompt").value;
+        const status = document.getElementById("aiStatus");
+        const btn = document.getElementById("generateBtn");
+
+        if (!prompt) {
+          showToast("Please enter a description!");
+          return;
+        }
+
+        // UI Feedback
+        btn.disabled = true;
+        btn.innerText = "Generating...";
+        status.innerText = "AI is thinking...";
+
+        try {
+          // --- API PLACEHOLDER ---
+          // In a real app, you would fetch from your server here:
+          // const response = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt}) });
+          // const data = await response.json();
+
+          // Simulating a delay for the "AI" feel
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          // For now, let's trigger a success message and add a random shape
+          // This is where you would parse AI SVG data and add it to your 'shapes' array
+          showToast("AI Generated your icon!");
+
+          // Example: Adding a basic shape to show it works
+          addShapeFromTool();
+        } catch (error) {
+          console.error(error);
+          showToast("AI Error: Connection failed");
+        } finally {
+          btn.disabled = false;
+          btn.innerText = "Generate Icon";
+          status.innerText = "Ready for next prompt.";
+        }
+      }
+
+      // Helper for your existing toast system
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3000);
+      }
+
       // ── STATE ──
       let shapes = [],
         selectedId = null,
