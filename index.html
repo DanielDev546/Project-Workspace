@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVG Icon Generator</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #060a10;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Exo 2", sans-serif;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* ── Atmospheric fog ── */
+      .fog {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 60% 40% at 60% 30%,
+            #1a2a4a55 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 40% 30% at 75% 20%,
+            #0e3a3a44 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+        animation: fogDrift 8s ease-in-out infinite alternate;
+      }
+      @keyframes fogDrift {
+        from {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1.05) translateY(-10px);
+        }
+      }
+
+      /* ── Particle dust ── */
+      .particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .particle {
+        position: absolute;
+        border-radius: 50%;
+        animation: floatUp linear infinite;
+        opacity: 0;
+      }
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) translateX(0);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 0.4;
+        }
+        100% {
+          transform: translateY(-120vh) translateX(30px);
+          opacity: 0;
+        }
+      }
+
+      /* ── Scene wrapper ── */
+      .scene {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        z-index: 10;
+        animation: sceneIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      @keyframes sceneIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* ── Isometric cube cluster ── */
+      .cube-cluster {
+        position: relative;
+        width: 380px;
+        height: 340px;
+        margin-bottom: 40px;
+      }
+
+      /* Individual cube made with CSS 3D */
+      .cube-wrap {
+        position: absolute;
+        transform-style: preserve-3d;
+        animation: floatCube 4s ease-in-out infinite;
+      }
+
+      .cube {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        transform-style: preserve-3d;
+        transform: rotateX(-30deg) rotateY(45deg);
+      }
+
+      .face {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Glass-morphism faces */
+      .face.top {
+        transform: rotateX(90deg) translateZ(50px);
+        background: linear-gradient(
+          135deg,
+          rgba(100, 200, 255, 0.25),
+          rgba(80, 120, 255, 0.15)
+        );
+        border-color: rgba(120, 220, 255, 0.4);
+      }
+      .face.front {
+        transform: translateZ(50px);
+        background: linear-gradient(
+          160deg,
+          rgba(80, 120, 255, 0.2),
+          rgba(60, 180, 220, 0.1)
+        );
+        border-color: rgba(100, 180, 255, 0.3);
+        backdrop-filter: blur(4px);
+      }
+      .face.right {
+        transform: rotateY(90deg) translateZ(50px);
+        background: linear-gradient(
+          160deg,
+          rgba(40, 80, 180, 0.15),
+          rgba(30, 140, 160, 0.08)
+        );
+        border-color: rgba(80, 160, 220, 0.25);
+      }
+
+      /* Glow edge */
+      .face.front::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 2px;
+        box-shadow:
+          0 0 12px 2px rgba(100, 200, 255, 0.3),
+          inset 0 0 20px rgba(80, 180, 255, 0.1);
+        pointer-events: none;
+      }
+
+      /* Icon inside cube face */
+      .face-icon {
+        font-size: 28px;
+        opacity: 0.7;
+        filter: drop-shadow(0 0 6px rgba(100, 220, 255, 0.8));
+        animation: iconPulse 3s ease-in-out infinite;
+      }
+      @keyframes iconPulse {
+        0%,
+        100% {
+          opacity: 0.6;
+          filter: drop-shadow(0 0 6px rgba(100, 220, 255, 0.6));
+        }
+        50% {
+          opacity: 0.9;
+          filter: drop-shadow(0 0 12px rgba(100, 220, 255, 1));
+        }
+      }
+
+      /* Cube positions — isometric layout */
+      .c1 {
+        left: 90px;
+        top: 20px;
+        animation-delay: 0s;
+        animation-duration: 4.2s;
+      }
+      .c2 {
+        left: 180px;
+        top: 60px;
+        animation-delay: 0.4s;
+        animation-duration: 3.8s;
+      }
+      .c3 {
+        left: 0px;
+        top: 100px;
+        animation-delay: 0.8s;
+        animation-duration: 4.5s;
+      }
+      .c4 {
+        left: 90px;
+        top: 140px;
+        animation-delay: 0.2s;
+        animation-duration: 4s;
+      }
+      .c5 {
+        left: 270px;
+        top: 100px;
+        animation-delay: 0.6s;
+        animation-duration: 3.6s;
+      }
+      .c6 {
+        left: 180px;
+        top: 180px;
+        animation-delay: 1s;
+        animation-duration: 4.3s;
+      }
+
+      @keyframes floatCube {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Green-tinted cubes on the right */
+      .c5 .face.top {
+        background: linear-gradient(
+          135deg,
+          rgba(80, 255, 180, 0.25),
+          rgba(40, 200, 140, 0.15)
+        );
+        border-color: rgba(80, 255, 180, 0.4);
+      }
+      .c5 .face.front {
+        background: linear-gradient(
+          160deg,
+          rgba(40, 200, 140, 0.2),
+          rgba(20, 180, 120, 0.1)
+        );
+        border-color: rgba(60, 220, 160, 0.3);
+      }
+      .c5 .face.right {
+        background: linear-gradient(
+          160deg,
+          rgba(20, 160, 100, 0.15),
+          rgba(10, 140, 80, 0.08)
+        );
+        border-color: rgba(40, 200, 140, 0.25);
+      }
+      .c5 .face.front::after {
+        box-shadow:
+          0 0 12px 2px rgba(80, 255, 180, 0.4),
+          inset 0 0 20px rgba(60, 230, 160, 0.1);
+      }
+      .c5 .face-icon {
+        filter: drop-shadow(0 0 6px rgba(80, 255, 180, 0.8));
+      }
+
+      .c6 .face.top {
+        background: linear-gradient(
+          135deg,
+          rgba(80, 255, 180, 0.2),
+          rgba(40, 200, 140, 0.12)
+        );
+        border-color: rgba(80, 255, 180, 0.35);
+      }
+      .c6 .face.front {
+        background: linear-gradient(
+          160deg,
+          rgba(40, 200, 140, 0.15),
+          rgba(20, 180, 120, 0.08)
+        );
+        border-color: rgba(60, 220, 160, 0.25);
+      }
+      .c6 .face.right {
+        background: linear-gradient(
+          160deg,
+          rgba(20, 160, 100, 0.1),
+          rgba(10, 140, 80, 0.05)
+        );
+        border-color: rgba(40, 200, 140, 0.2);
+      }
+      .c6 .face.front::after {
+        box-shadow:
+          0 0 10px 2px rgba(80, 255, 180, 0.3),
+          inset 0 0 16px rgba(60, 230, 160, 0.08);
+      }
+      .c6 .face-icon {
+        filter: drop-shadow(0 0 6px rgba(80, 255, 180, 0.8));
+      }
+
+      /* ── Ground glow ── */
+      .ground-glow {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 280px;
+        height: 40px;
+        background: radial-gradient(
+          ellipse,
+          rgba(80, 160, 255, 0.3) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        filter: blur(8px);
+        animation: glowPulse 3s ease-in-out infinite;
+      }
+      @keyframes glowPulse {
+        0%,
+        100% {
+          opacity: 0.5;
+          transform: translateX(-50%) scaleX(1);
+        }
+        50% {
+          opacity: 0.9;
+          transform: translateX(-50%) scaleX(1.1);
+        }
+      }
+
+      /* ── Text block ── */
+      .text-block {
+        text-align: left;
+        align-self: flex-start;
+        margin-left: 20px;
+        animation: textIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+      }
+      @keyframes textIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .main-title {
+        font-family: "Orbitron", sans-serif;
+        font-size: clamp(28px, 4vw, 52px);
+        font-weight: 700;
+        color: #e8f0ff;
+        letter-spacing: 0.06em;
+        line-height: 1;
+        margin-bottom: 10px;
+        text-shadow: 0 0 40px rgba(100, 180, 255, 0.3);
+      }
+
+      .sub-title {
+        font-family: "Exo 2", sans-serif;
+        font-size: clamp(10px, 1.2vw, 13px);
+        font-weight: 300;
+        color: #7a9ab8;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+      }
+
+      /* ── Loading bar ── */
+      .loader-wrap {
+        margin-top: 28px;
+        width: 320px;
+        animation: textIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+      }
+      .loader-track {
+        width: 100%;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+      }
+      .loader-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #4a8fff, #00e5cc);
+        border-radius: 2px;
+        box-shadow:
+          0 0 10px #4a8fff,
+          0 0 20px #00e5cc66;
+        animation: load 2.2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards;
+      }
+      @keyframes load {
+        0% {
+          width: 0%;
+        }
+        60% {
+          width: 75%;
+        }
+        80% {
+          width: 88%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      .loader-label {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 10px;
+        color: #4a7090;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      .pct {
+        color: #4a8fff;
+        font-family: "Orbitron", sans-serif;
+        font-size: 10px;
+      }
+
+      /* ── Enter button (appears after load) ── */
+      .enter-btn {
+        margin-top: 24px;
+        padding: 12px 40px;
+        background: linear-gradient(
+          135deg,
+          rgba(74, 143, 255, 0.15),
+          rgba(0, 229, 204, 0.1)
+        );
+        border: 1px solid rgba(74, 143, 255, 0.5);
+        border-radius: 4px;
+        color: #a0c8ff;
+        font-family: "Orbitron", sans-serif;
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.3s ease;
+        animation: btnIn 0.6s ease 3.2s forwards;
+        position: relative;
+        overflow: hidden;
+      }
+      .enter-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(74, 143, 255, 0.2),
+          rgba(0, 229, 204, 0.15)
+        );
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .enter-btn:hover::before {
+        opacity: 1;
+      }
+      .enter-btn:hover {
+        border-color: rgba(74, 143, 255, 0.9);
+        color: #d0e8ff;
+        box-shadow:
+          0 0 20px rgba(74, 143, 255, 0.3),
+          0 0 40px rgba(0, 229, 204, 0.1);
+        transform: translateY(-1px) !important;
+      }
+      @keyframes btnIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── Version tag ── */
+      .version {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        font-size: 10px;
+        color: #2a4060;
+        letter-spacing: 0.15em;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      /* ── Star sparkle (bottom right in image) ── */
+      .sparkle {
+        position: fixed;
+        bottom: 60px;
+        right: 40px;
+        width: 30px;
+        height: 30px;
+        animation: sparkSpin 8s linear infinite;
+      }
+      .sparkle::before,
+      .sparkle::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: #c8e0ff;
+        clip-path: polygon(
+          50% 0%,
+          55% 45%,
+          100% 50%,
+          55% 55%,
+          50% 100%,
+          45% 55%,
+          0% 50%,
+          45% 45%
+        );
+      }
+      .sparkle::after {
+        transform: rotate(45deg);
+        opacity: 0.4;
+      }
+      @keyframes sparkSpin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Page exit */
+      .fade-out {
+        animation: fadeOut 0.6s ease forwards !important;
+      }
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          pointer-events: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Fog -->
+    <div class="fog"></div>
+
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main scene -->
+    <div class="scene" id="scene">
+      <!-- Isometric cube cluster -->
+      <div class="cube-cluster">
+        <div class="ground-glow"></div>
+
+        <!-- Cube 1 – top center (cyan) -->
+        <div class="cube-wrap c1">
+          <div class="cube">
+            <div class="face top"></div>
+            <div class="face front"></div>
+            <div class="face right"></div>
+          </div>
+        </div>
+
+        <!-- Cube 2 – right of top (cyan) -->
+        <div class="cube-wrap c2">
+          <div class="cube">
+            <div class="face top"></div>
+            <div class="face front"><span class="face-icon">⚡</span></div>
+            <div class="face right"></div>
+          </div>
+        </div>
+
+        <!-- Cube 3 – left (purple-blue) -->
+        <div class="cube-wrap c3">
+          <div class="cube">
+            <div class="face top"></div>
+            <div class="face front"></div>
+            <div class="face right"></div>
+          </div>
+        </div>
+
+        <!-- Cube 4 – center (gear icon) -->
+        <div class="cube-wrap c4">
+          <div class="cube">
+            <div class="face top"></div>
+            <div class="face front"><span class="face-icon">⚙️</span></div>
+            <div class="face right">
+              <span class="face-icon" style="font-size: 20px">📡</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cube 5 – far right (green) -->
+        <div class="cube-wrap c5">
+          <div class="cube">
+            <div class="face top"></div>
+            <div class="face front"><span class="face-icon">⚡</span></div>
+            <div class="face right"></div>
+          </div>
+        </div>
+
+        <!-- Cube 6 – bottom right (green) -->
+        <div class="cube-wrap c6">
+          <div class="cube">
+            <div class="face top"></div>
+            <div class="face front"></div>
+            <div class="face right"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div class="text-block">
+        <h1 class="main-title">SVG ICON GENERATOR</h1>
+        <p class="sub-title">
+          Precision-Engineered Line Art for Modern Interfaces
+        </p>
+
+        <!-- Loading bar -->
+        <div class="loader-wrap">
+          <div class="loader-track">
+            <div class="loader-fill" id="loaderFill"></div>
+          </div>
+          <div class="loader-label">
+            <span>Initializing</span>
+            <span class="pct" id="pctLabel">0%</span>
+          </div>
+        </div>
+
+        <!-- Enter button -->
+        <a href="iindex.html">
+          <button class="enter-btn" id="enterBtn" onclick="enterApp()">
+            Enter Studio →
+          </button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Sparkle -->
+    <div class="sparkle"></div>
+
+    <!-- Version -->
+    <div class="version">v1.0.0</div>
+
+    <script>
+      // ── Spawn particles ──
+      const pContainer = document.getElementById("particles");
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        const size = Math.random() * 3 + 1;
+        const isBlue = Math.random() > 0.4;
+        p.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${Math.random() * 100}%;
+      bottom: ${Math.random() * 20}%;
+      background: ${isBlue ? "rgba(80,160,255,0.6)" : "rgba(80,255,180,0.5)"};
+      animation-duration: ${6 + Math.random() * 10}s;
+      animation-delay: ${Math.random() * 8}s;
+    `;
+        pContainer.appendChild(p);
+      }
+
+      // ── Animated percentage counter ──
+      const pctLabel = document.getElementById("pctLabel");
+      let pct = 0;
+      const startTime = Date.now() + 800;
+      function tick() {
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 0) {
+          requestAnimationFrame(tick);
+          return;
+        }
+        // Match the CSS animation curve roughly
+        const t = Math.min(elapsed / 2200, 1);
+        const eased =
+          t < 0.6
+            ? (t / 0.6) * 75
+            : t < 0.8
+              ? 75 + ((t - 0.6) / 0.2) * 13
+              : 88 + ((t - 0.8) / 0.2) * 12;
+        pct = Math.min(Math.round(eased), 100);
+        pctLabel.textContent = pct + "%";
+        if (pct < 100) requestAnimationFrame(tick);
+        else pctLabel.textContent = "100%";
+      }
+      requestAnimationFrame(tick);
+
+      // ── Enter app ──
+      function enterApp() {
+        document.getElementById("scene").classList.add("fade-out");
+        document.querySelector(".fog").classList.add("fade-out");
+        setTimeout(() => {
+          // Redirect to your SvelteKit app (running on 5173 in dev)
+          window.location.href = "/index.html".replace("index.html", "") || "/";
+        }, 600);
+      }
+    </script>
+  </body>
+</html>

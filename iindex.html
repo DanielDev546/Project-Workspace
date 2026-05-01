@@ -1,0 +1,3023 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVG Icon Generator</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --bg: #1a1a1a;
+        --panel: #242424;
+        --panel2: #2e2e2e;
+        --border: #3a3a3a;
+        --accent: #4a90e2;
+        --text: #e2e2e2;
+        --text2: #888;
+        --input-bg: #181818;
+        --hover: #333;
+        --selected: #4a90e218;
+        --red: #e74c3c;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", sans-serif;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      /* Header */
+      header {
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        height: 48px;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      .logo-dots {
+        display: flex;
+        gap: 5px;
+      }
+      .dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+      }
+      .dot.blue {
+        background: #2255dd;
+      }
+      .dot.gray {
+        background: #888;
+      }
+      .dot.white {
+        background: #ddd;
+        border: 1px solid #555;
+      }
+      .app-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #ddd;
+        margin-left: 4px;
+      }
+      .header-center {
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        gap: 4px;
+      }
+      .hbtn {
+        background: none;
+        border: none;
+        color: var(--text2);
+        font-size: 12px;
+        padding: 5px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .hbtn:hover {
+        background: var(--hover);
+        color: var(--text);
+      }
+      .header-right {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .export-wrap {
+        position: relative;
+      }
+      .export-btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 7px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .export-btn:hover {
+        background: #3a7ad5;
+      }
+      .export-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px;
+        z-index: 200;
+        min-width: 180px;
+        box-shadow: 0 8px 24px #0007;
+      }
+      .export-dropdown.open {
+        display: block;
+      }
+      .export-option {
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .export-option:hover {
+        background: var(--hover);
+      }
+      .exp-tag {
+        font-size: 9px;
+        background: var(--accent);
+        color: #fff;
+        padding: 1px 5px;
+        border-radius: 3px;
+        margin-left: auto;
+      }
+
+      /* Toolbar */
+      .toolbar {
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 7px 16px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+      }
+      .tool-sep {
+        width: 1px;
+        height: 20px;
+        background: var(--border);
+        margin: 0 2px;
+      }
+      .tbtn {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 5px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .tbtn:hover {
+        background: var(--hover);
+      }
+      .tbtn.active-tool {
+        background: var(--selected);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .zoom-box {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        min-width: 58px;
+        text-align: center;
+      }
+      .canvas-size-select {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 5px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        cursor: pointer;
+        outline: none;
+      }
+
+      /* Main */
+      .main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* Left Panel */
+      .left-panel {
+        width: 230px;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .left-panel::-webkit-scrollbar {
+        width: 3px;
+      }
+      .left-panel::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+      .sec-title {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 16px 16px 8px;
+      }
+      .cgroup {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .clabel {
+        font-size: 10px;
+        color: var(--text2);
+        margin-bottom: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .clabel-val {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .crow {
+        display: flex;
+        gap: 7px;
+      }
+      .cinp-wrap {
+        flex: 1;
+      }
+      .cinp-wrap label {
+        font-size: 9px;
+        color: var(--text2);
+        display: block;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .cinp {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        width: 100%;
+        padding: 5px 7px;
+        border-radius: 5px;
+        font-size: 12px;
+        outline: none;
+      }
+      .cinp:focus {
+        border-color: var(--accent);
+      }
+      .slider {
+        width: 100%;
+        accent-color: var(--accent);
+        cursor: pointer;
+        margin-top: 4px;
+        height: 14px;
+      }
+      .swatch {
+        width: 100%;
+        height: 30px;
+        border-radius: 5px;
+        border: 1.5px solid var(--border);
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .swatch input[type="color"] {
+        width: 130%;
+        height: 130%;
+        margin: -15%;
+        border: none;
+        cursor: pointer;
+      }
+      .pill-row {
+        display: flex;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        margin-top: 6px;
+      }
+      .pill-btn {
+        flex: 1;
+        padding: 6px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 500;
+        border: none;
+        background: var(--panel2);
+        color: var(--text2);
+        transition: all 0.15s;
+      }
+      .pill-btn.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      .icon-btn {
+        width: 100%;
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.15s;
+      }
+      .icon-btn:hover {
+        background: var(--hover);
+      }
+      .icon-btn.danger:hover {
+        background: #e74c3c22;
+        border-color: #e74c3c;
+        color: #e74c3c;
+      }
+      .grad-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+        align-items: center;
+      }
+      .grad-stop {
+        flex: 1;
+        height: 26px;
+        border-radius: 4px;
+        border: 1.5px solid var(--border);
+        overflow: hidden;
+      }
+      .grad-stop input[type="color"] {
+        width: 130%;
+        height: 130%;
+        margin: -15%;
+        border: none;
+        cursor: pointer;
+      }
+      .grad-preview {
+        height: 18px;
+        border-radius: 4px;
+        margin-top: 6px;
+        border: 1px solid var(--border);
+      }
+
+      /* Canvas */
+      .canvas-area {
+        flex: 1;
+        background: #2e2e2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+      .canvas-bg {
+        background: repeating-conic-gradient(#3a3a3a 0% 25%, #2e2e2e 0% 50%) 0
+          0/20px 20px;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+      }
+      #main-canvas {
+        display: block;
+      }
+      .canvas-wrap {
+        position: relative;
+        z-index: 1;
+      }
+      #rubberband {
+        position: absolute;
+        border: 1.5px dashed var(--accent);
+        background: #4a90e210;
+        pointer-events: none;
+        display: none;
+        z-index: 10;
+      }
+
+      /* Right Panel */
+      .right-panel {
+        width: 220px;
+        background: var(--panel);
+        border-left: 1px solid var(--border);
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .right-panel::-webkit-scrollbar {
+        width: 3px;
+      }
+      .right-panel::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+      .shape-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 0 14px 12px;
+      }
+      .shape-item {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 10px 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .shape-item:hover {
+        background: var(--hover);
+        border-color: var(--accent);
+      }
+      .shape-item.active {
+        background: var(--selected);
+        border-color: var(--accent);
+      }
+      .shape-item svg {
+        width: 20px;
+        height: 20px;
+        color: var(--text2);
+      }
+      .shape-item.active svg {
+        color: var(--accent);
+      }
+      .shape-label {
+        font-size: 9px;
+        color: var(--text2);
+      }
+      .shape-item.active .shape-label {
+        color: var(--accent);
+      }
+      .preset-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+        padding: 0 14px 12px;
+      }
+      .preset-item {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .preset-item:hover {
+        background: var(--hover);
+        border-color: var(--accent);
+      }
+      .preset-item svg {
+        width: 18px;
+        height: 18px;
+        color: var(--text2);
+      }
+      .preset-item span {
+        font-size: 8px;
+        color: var(--text2);
+      }
+      .layer-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 5px;
+        padding: 6px 8px;
+        margin-bottom: 3px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.12s;
+      }
+      .layer-item:hover {
+        background: var(--hover);
+      }
+      .layer-item.active-layer {
+        background: var(--selected);
+        border-color: var(--accent);
+      }
+      .layer-vis,
+      .layer-lock,
+      .layer-del {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 11px;
+        color: var(--text2);
+        padding: 0;
+        flex-shrink: 0;
+      }
+      .layer-del:hover {
+        color: var(--red);
+      }
+      .layer-name {
+        flex: 1;
+        font-size: 11px;
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .align-tabs {
+        display: flex;
+        gap: 3px;
+        padding: 0 14px 8px;
+      }
+      .atab {
+        background: none;
+        border: none;
+        color: var(--text2);
+        font-size: 11px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      .atab.active {
+        background: var(--selected);
+        color: var(--accent);
+      }
+      .align-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+        padding: 0 14px 12px;
+      }
+      .abtn {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 7px 4px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 13px;
+        text-align: center;
+        transition: all 0.12s;
+      }
+      .abtn:hover {
+        background: var(--hover);
+        border-color: var(--accent);
+      }
+
+      /* Shortcuts */
+      .shortcuts {
+        padding: 10px 14px;
+      }
+      .shortcut-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .shortcut-row:last-child {
+        border: none;
+      }
+      .kbd {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 1px 5px;
+        font-size: 10px;
+        color: var(--text2);
+        font-family: monospace;
+      }
+      .sc-label {
+        font-size: 11px;
+        color: var(--text2);
+      }
+
+      /* Modals */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #0009;
+        z-index: 300;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        min-width: 340px;
+        max-width: 92vw;
+        max-height: 85vh;
+        overflow: auto;
+        box-shadow: 0 20px 60px #0008;
+      }
+      .modal h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--text);
+      }
+      .modal pre {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 11px;
+        color: #a8d8a8;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: monospace;
+        word-break: break-all;
+      }
+      .modal-btns {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        justify-content: flex-end;
+      }
+      .mbtn {
+        padding: 7px 18px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .mbtn:hover {
+        background: var(--hover);
+      }
+      .mbtn.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .mbtn.primary:hover {
+        background: #3a7ad5;
+      }
+      .mbtn.danger {
+        background: #e74c3c22;
+        border-color: #e74c3c;
+        color: #e74c3c;
+      }
+      .anim-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .anim-opt {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .anim-opt:hover {
+        border-color: var(--accent);
+      }
+      .anim-opt.selected {
+        border-color: var(--accent);
+        background: var(--selected);
+      }
+      .anim-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .anim-desc {
+        font-size: 10px;
+        color: var(--text2);
+        margin-top: 2px;
+      }
+      .project-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+      .project-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+      }
+      .project-name {
+        flex: 1;
+        font-size: 12px;
+        color: var(--text);
+      }
+      .project-date {
+        font-size: 10px;
+        color: var(--text2);
+      }
+
+      /* Toast */
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #222;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-size: 12px;
+        opacity: 0;
+        transition: all 0.3s;
+        z-index: 500;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div class="logo-dots">
+        <span class="dot blue"></span><span class="dot gray"></span
+        ><span class="dot white"></span>
+      </div>
+      <span class="app-title">SVG Icon Generator</span>
+      <div class="header-center">
+        <button class="hbtn" onclick="openAnimate()">✦ Animate</button>
+        <button class="hbtn" onclick="openCode()">{ } Code</button>
+        <button class="hbtn" onclick="openProject()">💾 Project</button>
+        <button class="hbtn" onclick="openShortcuts()">⌨ Keys</button>
+      </div>
+      <div class="header-right">
+        <div class="export-wrap">
+          <button class="export-btn" onclick="toggleExportMenu()">
+            Export ▾
+          </button>
+          <div class="export-dropdown" id="exportDropdown">
+            <div class="export-option" onclick="exportAs('svg')">
+              🗂 Download SVG
+            </div>
+            <div class="export-option" onclick="exportAs('svg-opt')">
+              ⚡ Optimized SVG <span class="exp-tag">CLEAN</span>
+            </div>
+            <div class="export-option" onclick="exportAs('png')">
+              🖼 PNG @1x
+            </div>
+            <div class="export-option" onclick="exportAs('png2x')">
+              🖼 PNG @2x
+            </div>
+            <div class="export-option" onclick="exportAs('jsx')">
+              ⚛ React JSX <span class="exp-tag">NEW</span>
+            </div>
+            <div class="export-option" onclick="exportAs('datauri')">
+              🔗 Copy Data URI
+            </div>
+            <div class="export-option" onclick="exportAs('json')">
+              📦 Export JSON
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <button
+        class="tbtn active-tool"
+        id="tool-select"
+        onclick="setActiveTool('select')"
+      >
+        ▷ Select
+      </button>
+      <button class="tbtn" id="tool-pen" onclick="setActiveTool('pen')">
+        ✏ Pen
+      </button>
+      <div class="tool-sep"></div>
+      <button class="tbtn" onclick="undo()">↩ Undo</button>
+      <button class="tbtn" onclick="redo()">↪ Redo</button>
+      <div class="tool-sep"></div>
+      <button class="tbtn" onclick="changeZoom(-10)">−</button>
+      <div class="zoom-box" id="zoomDisplay">100%</div>
+      <button class="tbtn" onclick="changeZoom(10)">+</button>
+      <button class="tbtn" onclick="resetZoom()">⊡ Fit</button>
+      <div class="tool-sep"></div>
+      <select class="canvas-size-select" onchange="setCanvasSize(this.value)">
+        <option value="500x400">500×400</option>
+        <option value="512x512">512×512 Icon</option>
+        <option value="256x256">256×256</option>
+        <option value="64x64">64×64</option>
+        <option value="32x32">32×32</option>
+        <option value="24x24">24×24</option>
+        <option value="custom">Custom…</option>
+      </select>
+      <div class="tool-sep"></div>
+      <button class="tbtn" id="gridBtn" onclick="toggleGrid()">⊞ Grid</button>
+      <button class="tbtn" id="snapBtn" onclick="toggleSnap()">⊠ Snap</button>
+      <button
+        class="tbtn"
+        style="
+          background: var(--accent);
+          border-color: var(--accent);
+          color: #fff;
+          font-weight: 600;
+        "
+        onclick="addShapeFromTool()"
+      >
+        ＋ Add
+      </button>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <!-- LEFT PANEL -->
+      <div class="left-panel">
+        <div class="sec-title">Control Panel</div>
+
+        <div class="cgroup">
+          <div class="clabel">Position</div>
+          <div class="crow">
+            <div class="cinp-wrap">
+              <label>X</label
+              ><input
+                class="cinp"
+                type="number"
+                id="propX"
+                value="0"
+                onchange="updatePropX(this.value)"
+              />
+            </div>
+            <div class="cinp-wrap">
+              <label>Y</label
+              ><input
+                class="cinp"
+                type="number"
+                id="propY"
+                value="0"
+                onchange="updatePropY(this.value)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">
+            Size
+            <span
+              id="lockAspectBtn"
+              onclick="toggleAspectLock()"
+              style="cursor: pointer; font-size: 13px"
+              title="Lock aspect ratio"
+              >🔓</span
+            >
+          </div>
+          <div class="crow">
+            <div class="cinp-wrap">
+              <label>W</label
+              ><input
+                class="cinp"
+                type="number"
+                id="propW"
+                value="80"
+                min="1"
+                onchange="updatePropW(this.value)"
+              />
+            </div>
+            <div class="cinp-wrap">
+              <label>H</label
+              ><input
+                class="cinp"
+                type="number"
+                id="propH"
+                value="80"
+                min="1"
+                onchange="updatePropH(this.value)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="cgroup" id="borderRadiusGroup" style="display: none">
+          <div class="clabel">Border Radius</div>
+          <div class="crow">
+            <div class="cinp-wrap">
+              <label>RX</label
+              ><input
+                class="cinp"
+                type="number"
+                id="propRx"
+                value="0"
+                min="0"
+                onchange="updatePropRx(this.value)"
+              />
+            </div>
+            <div class="cinp-wrap">
+              <label>RY</label
+              ><input
+                class="cinp"
+                type="number"
+                id="propRy"
+                value="0"
+                min="0"
+                onchange="updatePropRy(this.value)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">
+            Rotation <span class="clabel-val"><span id="rotVal">0</span>°</span>
+          </div>
+          <input
+            type="range"
+            class="slider"
+            id="rotSlider"
+            min="0"
+            max="360"
+            value="0"
+            oninput="updateRotation(this.value)"
+          />
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">Transform</div>
+          <div class="crow">
+            <button class="icon-btn" onclick="flipShape('h')" style="flex: 1">
+              ↔ Flip H
+            </button>
+            <button class="icon-btn" onclick="flipShape('v')" style="flex: 1">
+              ↕ Flip V
+            </button>
+          </div>
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">Fill</div>
+          <div class="pill-row">
+            <button
+              class="pill-btn active"
+              id="fillSolidBtn"
+              onclick="setFillType('solid')"
+            >
+              Solid
+            </button>
+            <button
+              class="pill-btn"
+              id="fillGradientBtn"
+              onclick="setFillType('gradient')"
+            >
+              Gradient
+            </button>
+            <button
+              class="pill-btn"
+              id="fillNoneBtn"
+              onclick="setFillType('none')"
+            >
+              None
+            </button>
+          </div>
+          <div id="solidFillArea" style="margin-top: 8px">
+            <div class="swatch">
+              <input
+                type="color"
+                id="colorPicker"
+                value="#2222dd"
+                oninput="updateColor(this.value)"
+              />
+            </div>
+          </div>
+          <div id="gradFillArea" style="display: none; margin-top: 8px">
+            <div class="pill-row" style="margin-top: 0">
+              <button
+                class="pill-btn active"
+                id="gradLinearBtn"
+                onclick="setGradType('linear')"
+              >
+                Linear
+              </button>
+              <button
+                class="pill-btn"
+                id="gradRadialBtn"
+                onclick="setGradType('radial')"
+              >
+                Radial
+              </button>
+            </div>
+            <div class="grad-row">
+              <div class="grad-stop">
+                <input
+                  type="color"
+                  id="gradColor1"
+                  value="#4a90e2"
+                  oninput="updateGradient()"
+                />
+              </div>
+              <span style="color: var(--text2)">→</span>
+              <div class="grad-stop">
+                <input
+                  type="color"
+                  id="gradColor2"
+                  value="#00c9a7"
+                  oninput="updateGradient()"
+                />
+              </div>
+            </div>
+            <div
+              class="grad-preview"
+              id="gradPreview"
+              style="background: linear-gradient(90deg, #4a90e2, #00c9a7)"
+            ></div>
+          </div>
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">Stroke Color</div>
+          <div class="swatch">
+            <input
+              type="color"
+              id="strokeColorPicker"
+              value="#000000"
+              oninput="updateStrokeColor(this.value)"
+            />
+          </div>
+          <div class="clabel" style="margin-top: 10px">
+            Stroke Width
+            <span class="clabel-val"><span id="strokeVal">0</span>px</span>
+          </div>
+          <input
+            type="range"
+            class="slider"
+            id="strokeSlider"
+            min="0"
+            max="20"
+            value="0"
+            oninput="updateStroke(this.value)"
+          />
+          <div class="clabel" style="margin-top: 8px">Stroke Style</div>
+          <div class="pill-row">
+            <button
+              class="pill-btn active"
+              id="strokeSolidBtn"
+              onclick="setStrokeDash('solid')"
+            >
+              Solid
+            </button>
+            <button
+              class="pill-btn"
+              id="strokeDashedBtn"
+              onclick="setStrokeDash('dashed')"
+            >
+              Dashed
+            </button>
+            <button
+              class="pill-btn"
+              id="strokeDottedBtn"
+              onclick="setStrokeDash('dotted')"
+            >
+              Dotted
+            </button>
+          </div>
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">
+            Opacity
+            <span class="clabel-val"><span id="opacityVal">100</span>%</span>
+          </div>
+          <input
+            type="range"
+            class="slider"
+            id="opacitySlider"
+            min="0"
+            max="100"
+            value="100"
+            oninput="updateOpacity(this.value)"
+          />
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">
+            Drop Shadow
+            <span class="clabel-val"><span id="shadowVal">0</span>px</span>
+          </div>
+          <input
+            type="range"
+            class="slider"
+            id="shadowSlider"
+            min="0"
+            max="30"
+            value="0"
+            oninput="updateShadow(this.value)"
+          />
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">
+            Blur <span class="clabel-val"><span id="blurVal">0</span>px</span>
+          </div>
+          <input
+            type="range"
+            class="slider"
+            id="blurSlider"
+            min="0"
+            max="20"
+            value="0"
+            oninput="updateBlur(this.value)"
+          />
+        </div>
+
+        <div class="cgroup">
+          <div class="clabel">Actions</div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <button class="icon-btn" onclick="makeTransparent()">
+              ◻ Make Transparent
+            </button>
+            <button class="icon-btn" onclick="duplicateSelected()">
+              ⧉ Duplicate (Ctrl+D)
+            </button>
+            <button class="icon-btn danger" onclick="deleteSelected()">
+              🗑 Delete (Del)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CANVAS -->
+      <div class="canvas-area" id="canvasArea" onwheel="handleWheel(event)">
+        <div class="canvas-bg"></div>
+        <div id="rubberband"></div>
+        <div class="canvas-wrap" id="canvasWrap">
+          <svg
+            id="main-canvas"
+            width="500"
+            height="400"
+            style="
+              background: #fff;
+              border-radius: 3px;
+              box-shadow: 0 4px 30px #0009;
+              display: block;
+            "
+          >
+            <defs id="svgDefs"></defs>
+            <g id="gridG" style="pointer-events: none"></g>
+            <g id="shapesGroup"></g>
+            <g id="selectionGroup"></g>
+            <g id="penGroup" style="pointer-events: none"></g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+        <div class="sec-title">Shape Library</div>
+        <div class="shape-grid">
+          <div
+            class="shape-item active"
+            id="tool-rect"
+            onclick="selectTool('rect')"
+            title="Rectangle"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="1" />
+            </svg>
+            <span class="shape-label">Rect</span>
+          </div>
+          <div
+            class="shape-item"
+            id="tool-circle"
+            onclick="selectTool('circle')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+            <span class="shape-label">Circle</span>
+          </div>
+          <div
+            class="shape-item"
+            id="tool-triangle"
+            onclick="selectTool('triangle')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="12,2 22,22 2,22" />
+            </svg>
+            <span class="shape-label">Triangle</span>
+          </div>
+          <div class="shape-item" id="tool-line" onclick="selectTool('line')">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <line x1="2" y1="22" x2="22" y2="2" />
+            </svg>
+            <span class="shape-label">Line</span>
+          </div>
+          <div class="shape-item" id="tool-dot" onclick="selectTool('dot')">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5" fill="currentColor" />
+            </svg>
+            <span class="shape-label">Dot</span>
+          </div>
+          <div class="shape-item" id="tool-star" onclick="selectTool('star')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon
+                points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              />
+            </svg>
+            <span class="shape-label">Star</span>
+          </div>
+          <div
+            class="shape-item"
+            id="tool-diamond"
+            onclick="selectTool('diamond')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="12,2 22,12 12,22 2,12" />
+            </svg>
+            <span class="shape-label">Diamond</span>
+          </div>
+          <div
+            class="shape-item"
+            id="tool-hexagon"
+            onclick="selectTool('hexagon')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" />
+            </svg>
+            <span class="shape-label">Hex</span>
+          </div>
+          <div class="shape-item" id="tool-arrow" onclick="selectTool('arrow')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="13,6 19,12 13,18" />
+            </svg>
+            <span class="shape-label">Arrow</span>
+          </div>
+        </div>
+
+        <div class="sec-title">Icon Presets</div>
+        <div class="preset-grid" id="presetGrid"></div>
+
+        <div
+          class="sec-title"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 14px;
+          "
+        >
+          <span>Layers</span>
+          <button
+            style="
+              background: none;
+              border: none;
+              color: var(--text2);
+              cursor: pointer;
+              font-size: 13px;
+            "
+            onclick="deleteSelected()"
+          >
+            🗑
+          </button>
+        </div>
+        <div style="padding: 0 14px 10px" id="layersList"></div>
+
+        <div class="sec-title">Align & Arrange</div>
+        <div class="align-tabs">
+          <button class="atab active" onclick="switchAlignTab(this, 'align')">
+            Align
+          </button>
+          <button class="atab" onclick="switchAlignTab(this, 'arrange')">
+            Order
+          </button>
+        </div>
+        <div class="align-grid" id="alignGrid">
+          <button class="abtn" onclick="alignShapes('left')" title="Left">
+            ⬅
+          </button>
+          <button class="abtn" onclick="alignShapes('center')" title="Center H">
+            ↔
+          </button>
+          <button class="abtn" onclick="alignShapes('right')" title="Right">
+            ➡
+          </button>
+          <button class="abtn" onclick="alignShapes('top')" title="Top">
+            ⬆
+          </button>
+          <button class="abtn" onclick="alignShapes('middle')" title="Center V">
+            ↕
+          </button>
+          <button class="abtn" onclick="alignShapes('bottom')" title="Bottom">
+            ⬇
+          </button>
+          <button class="abtn" onclick="duplicateSelected()" title="Duplicate">
+            ⧉
+          </button>
+          <button class="abtn" onclick="reorder('top')" title="Bring to Front">
+            ⬆⬆
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="codeModal">
+      <div class="modal" style="min-width: 480px">
+        <h2>{ } SVG Code</h2>
+        <div style="display: flex; gap: 6px; margin-bottom: 10px">
+          <button
+            class="mbtn active"
+            id="codeTabSvg"
+            onclick="switchCodeTab('svg')"
+          >
+            SVG
+          </button>
+          <button class="mbtn" id="codeTabJsx" onclick="switchCodeTab('jsx')">
+            React JSX
+          </button>
+          <button class="mbtn" id="codeTabUri" onclick="switchCodeTab('uri')">
+            Data URI
+          </button>
+        </div>
+        <pre id="codeOutput"></pre>
+        <div class="modal-btns">
+          <button class="mbtn" onclick="copySVGCode()">📋 Copy</button>
+          <button class="mbtn primary" onclick="closeModal('codeModal')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="animateModal">
+      <div class="modal">
+        <h2>✦ Animate Shape</h2>
+        <div class="anim-grid">
+          <div class="anim-opt selected" onclick="selectAnim(this, 'spin')">
+            <div class="anim-name">🔄 Spin</div>
+            <div class="anim-desc">Rotate continuously</div>
+          </div>
+          <div class="anim-opt" onclick="selectAnim(this, 'pulse')">
+            <div class="anim-name">💓 Pulse</div>
+            <div class="anim-desc">Scale in and out</div>
+          </div>
+          <div class="anim-opt" onclick="selectAnim(this, 'bounce')">
+            <div class="anim-name">⬆ Bounce</div>
+            <div class="anim-desc">Move up and down</div>
+          </div>
+          <div class="anim-opt" onclick="selectAnim(this, 'fade')">
+            <div class="anim-name">🌫 Fade</div>
+            <div class="anim-desc">Fade in and out</div>
+          </div>
+          <div class="anim-opt" onclick="selectAnim(this, 'shake')">
+            <div class="anim-name">📳 Shake</div>
+            <div class="anim-desc">Horizontal shake</div>
+          </div>
+          <div class="anim-opt" onclick="selectAnim(this, 'draw')">
+            <div class="anim-name">✏ Draw</div>
+            <div class="anim-desc">Stroke draw-on</div>
+          </div>
+        </div>
+        <div style="margin-bottom: 12px">
+          <div class="clabel" style="padding: 0; margin-bottom: 4px">
+            Duration: <span id="animDurVal">1</span>s
+          </div>
+          <input
+            type="range"
+            class="slider"
+            min="0.2"
+            max="5"
+            step="0.1"
+            value="1"
+            oninput="
+              document.getElementById('animDurVal').textContent = parseFloat(
+                this.value,
+              ).toFixed(1);
+              animDuration = parseFloat(this.value);
+            "
+          />
+        </div>
+        <div class="modal-btns">
+          <button class="mbtn danger" onclick="removeAnimation()">
+            Remove
+          </button>
+          <button class="mbtn primary" onclick="applyAnimation()">Apply</button>
+          <button class="mbtn" onclick="closeModal('animateModal')">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="projectModal">
+      <div class="modal">
+        <h2>💾 Projects</h2>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px">
+          <input
+            class="cinp"
+            id="projectNameInput"
+            placeholder="Project name…"
+            style="flex: 1"
+          />
+          <button class="mbtn primary" onclick="saveProject()">Save</button>
+        </div>
+        <div class="project-list" id="projectList"></div>
+        <div class="modal-btns">
+          <button class="mbtn" onclick="closeModal('projectModal')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="shortcutsModal">
+      <div class="modal">
+        <h2>⌨ Keyboard Shortcuts</h2>
+        <div class="shortcuts">
+          <div class="shortcut-row">
+            <span class="sc-label">Select tool</span><span class="kbd">V</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Pen / Freehand</span
+            ><span class="kbd">P</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Add shape</span><span class="kbd">A</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Delete</span><span class="kbd">Del</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Duplicate</span
+            ><span class="kbd">Ctrl+D</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Undo</span><span class="kbd">Ctrl+Z</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Redo</span><span class="kbd">Ctrl+Y</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Nudge shape</span
+            ><span class="kbd">Arrow Keys</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Nudge ×10</span
+            ><span class="kbd">Shift+Arrow</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Zoom</span
+            ><span class="kbd">Ctrl+Scroll</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Fit canvas</span><span class="kbd">F</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Toggle grid</span><span class="kbd">G</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Bring forward</span
+            ><span class="kbd">]</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Send backward</span
+            ><span class="kbd">[</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="sc-label">Export SVG</span
+            ><span class="kbd">Ctrl+E</span>
+          </div>
+        </div>
+        <div class="modal-btns">
+          <button class="mbtn primary" onclick="closeModal('shortcutsModal')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+      // ── STATE ──
+      let shapes = [],
+        selectedId = null,
+        nextId = 1,
+        currentTool = "rect",
+        activeTool = "select";
+      let zoom = 100,
+        undoStack = [],
+        redoStack = [],
+        selectedAnim = "spin",
+        animDuration = 1;
+      let gridVisible = false,
+        snapEnabled = false,
+        GRID = 10,
+        aspectLocked = false;
+      let fillType = "solid",
+        gradType = "linear",
+        strokeDash = "solid";
+      let penPoints = [],
+        isPenDrawing = false,
+        codeTab = "svg";
+      let dragging = false,
+        dragOffX = 0,
+        dragOffY = 0;
+      let resizing = false,
+        resizeHandle = "",
+        resizeStartX = 0,
+        resizeStartY = 0,
+        resizeOrig = null;
+      let rubberActive = false,
+        rbStart = null;
+
+      const canvas = document.getElementById("main-canvas");
+      const shapesGroup = document.getElementById("shapesGroup");
+      const selectionGroup = document.getElementById("selectionGroup");
+      const svgDefs = document.getElementById("svgDefs");
+      const canvasWrap = document.getElementById("canvasWrap");
+      const canvasArea = document.getElementById("canvasArea");
+
+      // ── TOAST ──
+      function toast(msg) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove("show"), 2200);
+      }
+
+      // ── PRESETS ──
+      const PRESETS = [
+        { name: "Home", path: "M3,12 L12,3 L21,12 M5,10 L5,21 L19,21 L19,10" },
+        {
+          name: "User",
+          path: "M12,4 a4,4 0 1,0 0,8 a4,4 0 1,0 0,-8 M4,21 C4,17 8,14 12,14 C16,14 20,17 20,21",
+        },
+        {
+          name: "⚙",
+          path: "M12,8 a4,4 0 1,0 0,8 a4,4 0 1,0 0,-8 M12,2 L12,4 M12,20 L12,22 M4.22,4.22 L5.64,5.64 M18.36,18.36 L19.78,19.78 M2,12 L4,12 M20,12 L22,12",
+        },
+        {
+          name: "Search",
+          path: "M11,5 a6,6 0 1,0 0,12 a6,6 0 1,0 0,-12 M20,20 L16.65,16.65",
+        },
+        {
+          name: "Bell",
+          path: "M6,10 a6,6 0 0,1 12,0 L20,17 L4,17 Z M10,17 a2,2 0 0,0 4,0",
+        },
+        {
+          name: "Heart",
+          path: "M12,21 C12,21 3,13.5 3,8 a5,5 0 0,1 9,-2 a5,5 0 0,1 9,2 C21,13.5 12,21 12,21",
+        },
+        {
+          name: "Star",
+          path: "M12,2 L15.09,8.26 L22,9.27 L17,14.14 L18.18,21.02 L12,17.77 L5.82,21.02 L7,14.14 L2,9.27 L8.91,8.26 Z",
+        },
+        { name: "Mail", path: "M4,4 L20,4 L20,18 L4,18 Z M4,4 L12,13 L20,4" },
+        {
+          name: "Lock",
+          path: "M8,11 L8,7 a4,4 0 0,1 8,0 L16,11 M5,11 L19,11 L19,21 L5,21 Z",
+        },
+        { name: "✓", path: "M4,12 L9,17 L20,6" },
+        { name: "✕", path: "M5,5 L19,19 M19,5 L5,19" },
+        { name: "→", path: "M5,12 L19,12 M13,6 L19,12 L13,18" },
+      ];
+
+      function buildPresets() {
+        const grid = document.getElementById("presetGrid");
+        PRESETS.forEach((p) => {
+          const div = document.createElement("div");
+          div.className = "preset-item";
+          div.title = p.name;
+          div.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${p.path}"/></svg><span>${p.name}</span>`;
+          div.onclick = () => addPresetIcon(p);
+          grid.appendChild(div);
+        });
+      }
+      buildPresets();
+
+      function addPresetIcon(p) {
+        const cw = parseInt(canvas.getAttribute("width")),
+          ch = parseInt(canvas.getAttribute("height"));
+        const id = "s" + nextId++;
+        const shape = {
+          id,
+          type: "path",
+          x: cw / 2 - 40,
+          y: ch / 2 - 40,
+          w: 80,
+          h: 80,
+          fill: "none",
+          fillType: "none",
+          gradColor1: "#4a90e2",
+          gradColor2: "#00c9a7",
+          gradType: "linear",
+          stroke:
+            document.getElementById("strokeColorPicker").value || "#4a90e2",
+          strokeWidth: 2,
+          strokeDash: "solid",
+          opacity: 1,
+          rotation: 0,
+          rx: 0,
+          ry: 0,
+          shadow: 0,
+          blur: 0,
+          flipH: false,
+          flipV: false,
+          visible: true,
+          locked: false,
+          animation: null,
+          name: p.name,
+          pathData: p.path,
+        };
+        saveUndo();
+        shapes.push(shape);
+        renderAll();
+        selectShape(id);
+        toast(`Added ${p.name}`);
+      }
+
+      // ── CREATE SHAPE ──
+      function createShape(type, x, y, w, h) {
+        const id = "s" + nextId++;
+        const shape = {
+          id,
+          type,
+          x: snap(Math.round(x)),
+          y: snap(Math.round(y)),
+          w: Math.round(w) || 80,
+          h: Math.round(h) || 80,
+          fill:
+            fillType === "none"
+              ? "none"
+              : document.getElementById("colorPicker").value,
+          fillType,
+          gradColor1: document.getElementById("gradColor1").value,
+          gradColor2: document.getElementById("gradColor2").value,
+          gradType,
+          stroke: document.getElementById("strokeColorPicker").value,
+          strokeWidth: parseInt(document.getElementById("strokeSlider").value),
+          strokeDash,
+          opacity:
+            parseInt(document.getElementById("opacitySlider").value) / 100,
+          rotation: 0,
+          rx: 0,
+          ry: 0,
+          shadow: 0,
+          blur: 0,
+          flipH: false,
+          flipV: false,
+          visible: true,
+          locked: false,
+          animation: null,
+          name: type + " " + nextId,
+        };
+        saveUndo();
+        shapes.push(shape);
+        renderAll();
+        selectShape(id);
+        return shape;
+      }
+
+      function addShapeFromTool() {
+        const cw = parseInt(canvas.getAttribute("width")),
+          ch = parseInt(canvas.getAttribute("height"));
+        createShape(currentTool, cw / 2 - 40, ch / 2 - 40, 80, 80);
+      }
+
+      // ── RENDER ──
+      function renderAll() {
+        shapesGroup.innerHTML = "";
+        selectionGroup.innerHTML = "";
+        svgDefs.innerHTML = "";
+
+        shapes.forEach((s) => {
+          if (!s.visible) return;
+          // Filter
+          let filterId = null;
+          if (s.shadow > 0 || s.blur > 0) {
+            filterId = "flt_" + s.id;
+            const filt = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "filter",
+            );
+            filt.setAttribute("id", filterId);
+            filt.setAttribute("x", "-50%");
+            filt.setAttribute("y", "-50%");
+            filt.setAttribute("width", "200%");
+            filt.setAttribute("height", "200%");
+            let inner = "";
+            if (s.blur > 0)
+              inner += `<feGaussianBlur stdDeviation="${s.blur}" result="blur"/>`;
+            if (s.shadow > 0)
+              inner += `<feDropShadow dx="0" dy="${s.shadow * 0.5}" stdDeviation="${s.shadow * 0.5}" flood-opacity="0.5"/>`;
+            filt.innerHTML = inner;
+            svgDefs.appendChild(filt);
+          }
+          // Gradient
+          let fillAttr = s.fill;
+          if (s.fillType === "gradient") {
+            const gid = "grad_" + s.id;
+            let gradEl;
+            if (s.gradType === "radial") {
+              gradEl = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "radialGradient",
+              );
+              gradEl.setAttribute("id", gid);
+              gradEl.setAttribute("cx", "50%");
+              gradEl.setAttribute("cy", "50%");
+              gradEl.setAttribute("r", "50%");
+            } else {
+              gradEl = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "linearGradient",
+              );
+              gradEl.setAttribute("id", gid);
+              gradEl.setAttribute("x1", "0%");
+              gradEl.setAttribute("y1", "0%");
+              gradEl.setAttribute("x2", "100%");
+              gradEl.setAttribute("y2", "0%");
+            }
+            gradEl.innerHTML = `<stop offset="0%" stop-color="${s.gradColor1}"/><stop offset="100%" stop-color="${s.gradColor2}"/>`;
+            svgDefs.appendChild(gradEl);
+            fillAttr = `url(#${gid})`;
+          }
+          // Dash
+          let dash = "";
+          if (s.strokeDash === "dashed")
+            dash = `${Math.max(4, s.strokeWidth * 3)},${Math.max(2, s.strokeWidth * 2)}`;
+          if (s.strokeDash === "dotted")
+            dash = `${s.strokeWidth},${Math.max(3, s.strokeWidth * 2)}`;
+
+          const cx = s.x + s.w / 2,
+            cy = s.y + s.h / 2;
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          let tr = `rotate(${s.rotation},${cx},${cy})`;
+          if (s.flipH) tr += ` scale(-1,1) translate(${-2 * cx},0)`;
+          if (s.flipV) tr += ` scale(1,-1) translate(0,${-2 * cy})`;
+          g.setAttribute("transform", tr);
+          g.style.cursor = s.locked ? "not-allowed" : "move";
+
+          function applyAttrs(el) {
+            el.setAttribute("fill", fillAttr);
+            el.setAttribute("stroke", s.stroke);
+            el.setAttribute("stroke-width", s.strokeWidth);
+            el.setAttribute("opacity", s.opacity);
+            if (dash) el.setAttribute("stroke-dasharray", dash);
+            if (filterId) el.setAttribute("filter", `url(#${filterId})`);
+            el.setAttribute("stroke-linecap", "round");
+            el.setAttribute("stroke-linejoin", "round");
+          }
+
+          let el;
+          if (s.type === "rect") {
+            el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            el.setAttribute("x", s.x);
+            el.setAttribute("y", s.y);
+            el.setAttribute("width", s.w);
+            el.setAttribute("height", s.h);
+            el.setAttribute("rx", s.rx);
+            el.setAttribute("ry", s.ry);
+          } else if (s.type === "circle") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "ellipse",
+            );
+            el.setAttribute("cx", s.x + s.w / 2);
+            el.setAttribute("cy", s.y + s.h / 2);
+            el.setAttribute("rx", s.w / 2);
+            el.setAttribute("ry", s.h / 2);
+          } else if (s.type === "triangle") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polygon",
+            );
+            el.setAttribute(
+              "points",
+              `${s.x + s.w / 2},${s.y} ${s.x + s.w},${s.y + s.h} ${s.x},${s.y + s.h}`,
+            );
+          } else if (s.type === "line") {
+            el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            el.setAttribute("x1", s.x);
+            el.setAttribute("y1", s.y + s.h / 2);
+            el.setAttribute("x2", s.x + s.w);
+            el.setAttribute("y2", s.y + s.h / 2);
+          } else if (s.type === "dot") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "circle",
+            );
+            el.setAttribute("cx", s.x + s.w / 2);
+            el.setAttribute("cy", s.y + s.h / 2);
+            el.setAttribute("r", Math.min(s.w, s.h) / 2);
+          } else if (s.type === "star") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polygon",
+            );
+            el.setAttribute(
+              "points",
+              starPts(
+                s.x + s.w / 2,
+                s.y + s.h / 2,
+                Math.min(s.w, s.h) / 2,
+                Math.min(s.w, s.h) / 4,
+                5,
+              ),
+            );
+          } else if (s.type === "diamond") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polygon",
+            );
+            el.setAttribute(
+              "points",
+              `${s.x + s.w / 2},${s.y} ${s.x + s.w},${s.y + s.h / 2} ${s.x + s.w / 2},${s.y + s.h} ${s.x},${s.y + s.h / 2}`,
+            );
+          } else if (s.type === "hexagon") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polygon",
+            );
+            el.setAttribute(
+              "points",
+              hexPts(s.x + s.w / 2, s.y + s.h / 2, Math.min(s.w, s.h) / 2),
+            );
+          } else if (s.type === "arrow") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polyline",
+            );
+            el.setAttribute(
+              "points",
+              `${s.x},${s.y + s.h / 2} ${s.x + s.w * 0.7},${s.y + s.h / 2} ${s.x + s.w * 0.7},${s.y + s.h * 0.2} ${s.x + s.w},${s.y + s.h / 2} ${s.x + s.w * 0.7},${s.y + s.h * 0.8} ${s.x + s.w * 0.7},${s.y + s.h / 2}`,
+            );
+          } else if (s.type === "path") {
+            el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            el.setAttribute(
+              "d",
+              scalePathToBox(s.pathData, s.x, s.y, s.w, s.h),
+            );
+          } else if (s.type === "freehand") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polyline",
+            );
+            el.setAttribute(
+              "points",
+              s.points.map((p) => p.join(",")).join(" "),
+            );
+            el.setAttribute("fill", "none");
+          }
+
+          applyAttrs(el);
+          if (s.animation) {
+            const ae = makeAnimEl(s);
+            if (ae) el.appendChild(ae);
+          }
+          if (!s.locked)
+            el.addEventListener("mousedown", (e) => startDrag(e, s.id));
+          g.appendChild(el);
+          shapesGroup.appendChild(g);
+        });
+
+        renderSelection();
+        renderLayers();
+      }
+
+      function starPts(cx, cy, or, ir, n) {
+        return Array.from({ length: n * 2 }, (_, i) => {
+          const a = (i * Math.PI) / n - Math.PI / 2,
+            r = i % 2 === 0 ? or : ir;
+          return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+        }).join(" ");
+      }
+      function hexPts(cx, cy, r) {
+        return Array.from({ length: 6 }, (_, i) => {
+          const a = (i * Math.PI) / 3 - Math.PI / 6;
+          return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+        }).join(" ");
+      }
+      function scalePathToBox(d, x, y, w, h) {
+        return d.replace(
+          /(-?\d+\.?\d*),(-?\d+\.?\d*)/g,
+          (_, a, b) =>
+            `${((parseFloat(a) * w) / 24 + x).toFixed(2)},${((parseFloat(b) * h) / 24 + y).toFixed(2)}`,
+        );
+      }
+
+      // ── SELECTION HANDLES ──
+      const DIRS = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
+      const CURSORS = {
+        nw: "nwse-resize",
+        n: "ns-resize",
+        ne: "nesw-resize",
+        e: "ew-resize",
+        se: "nwse-resize",
+        s: "ns-resize",
+        sw: "nesw-resize",
+        w: "ew-resize",
+      };
+
+      function renderSelection() {
+        selectionGroup.innerHTML = "";
+        if (!selectedId) return;
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s || !s.visible) return;
+        const pad = 5,
+          rx = s.x - pad,
+          ry = s.y - pad,
+          rw = s.w + pad * 2,
+          rh = s.h + pad * 2;
+        const cx = s.x + s.w / 2,
+          cy = s.y + s.h / 2;
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `rotate(${s.rotation},${cx},${cy})`);
+        const rect = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "rect",
+        );
+        rect.setAttribute("x", rx);
+        rect.setAttribute("y", ry);
+        rect.setAttribute("width", rw);
+        rect.setAttribute("height", rh);
+        rect.setAttribute("fill", "none");
+        rect.setAttribute("stroke", "#4a90e2");
+        rect.setAttribute("stroke-width", "1.5");
+        rect.setAttribute("stroke-dasharray", "5,3");
+        g.appendChild(rect);
+        const hPos = [
+          [rx, ry],
+          [rx + rw / 2, ry],
+          [rx + rw, ry],
+          [rx + rw, ry + rh / 2],
+          [rx + rw, ry + rh],
+          [rx + rw / 2, ry + rh],
+          [rx, ry + rh],
+          [rx, ry + rh / 2],
+        ];
+        hPos.forEach(([hx, hy], i) => {
+          const h = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect",
+          );
+          h.setAttribute("x", hx - 5);
+          h.setAttribute("y", hy - 5);
+          h.setAttribute("width", 10);
+          h.setAttribute("height", 10);
+          h.setAttribute("fill", "#fff");
+          h.setAttribute("stroke", "#4a90e2");
+          h.setAttribute("stroke-width", "1.5");
+          h.setAttribute("rx", "2");
+          h.style.cursor = CURSORS[DIRS[i]];
+          h.addEventListener("mousedown", (e) => startResize(e, s.id, DIRS[i]));
+          g.appendChild(h);
+        });
+        selectionGroup.appendChild(g);
+      }
+
+      // ── RESIZE ──
+      function startResize(e, id, dir) {
+        e.stopPropagation();
+        e.preventDefault();
+        resizing = true;
+        resizeHandle = dir;
+        resizeStartX = e.clientX;
+        resizeStartY = e.clientY;
+        const s = shapes.find((x) => x.id === id);
+        resizeOrig = { ...s };
+        selectShape(id);
+        window.addEventListener("mousemove", onResizeMove);
+        window.addEventListener("mouseup", onResizeEnd);
+      }
+      function onResizeMove(e) {
+        if (!resizing || !selectedId) return;
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        const dx = (e.clientX - resizeStartX) / (zoom / 100);
+        const dy = (e.clientY - resizeStartY) / (zoom / 100);
+        const o = resizeOrig,
+          dir = resizeHandle;
+        let { x, y, w, h } = o;
+        if (dir.includes("e")) w = Math.max(4, o.w + dx);
+        if (dir.includes("s")) h = Math.max(4, o.h + dy);
+        if (dir.includes("w")) {
+          x = o.x + dx;
+          w = Math.max(4, o.w - dx);
+        }
+        if (dir.includes("n")) {
+          y = o.y + dy;
+          h = Math.max(4, o.h - dy);
+        }
+        if (aspectLocked) {
+          const r = o.w / o.h;
+          h = w / r;
+        }
+        s.x = snap(Math.round(x));
+        s.y = snap(Math.round(y));
+        s.w = snap(Math.round(w));
+        s.h = snap(Math.round(h));
+        renderAll();
+        updatePanel(s);
+      }
+      function onResizeEnd() {
+        resizing = false;
+        window.removeEventListener("mousemove", onResizeMove);
+        window.removeEventListener("mouseup", onResizeEnd);
+      }
+
+      // ── LAYERS ──
+      function renderLayers() {
+        const list = document.getElementById("layersList");
+        list.innerHTML = "";
+        [...shapes].reverse().forEach((s) => {
+          const div = document.createElement("div");
+          div.className =
+            "layer-item" + (s.id === selectedId ? " active-layer" : "");
+          div.innerHTML = `
+      <button class="layer-vis" onclick="toggleVis('${s.id}')">${s.visible ? "👁" : "🚫"}</button>
+      <span class="layer-name" onclick="selectShape('${s.id}')" ondblclick="renameLayer('${s.id}',this)">${s.name || s.type}</span>
+      <button class="layer-lock" onclick="toggleShapeLock('${s.id}')">${s.locked ? "🔒" : "🔓"}</button>
+      <button class="layer-del" onclick="deleteShape('${s.id}')">✕</button>`;
+          list.appendChild(div);
+        });
+      }
+      function renameLayer(id, el) {
+        el.contentEditable = true;
+        el.focus();
+        el.onblur = () => {
+          el.contentEditable = false;
+          const s = shapes.find((x) => x.id === id);
+          if (s) s.name = el.textContent.trim() || s.type;
+          renderLayers();
+        };
+      }
+      function toggleVis(id) {
+        const s = shapes.find((x) => x.id === id);
+        if (s) {
+          s.visible = !s.visible;
+          renderAll();
+        }
+      }
+      function toggleShapeLock(id) {
+        const s = shapes.find((x) => x.id === id);
+        if (s) {
+          s.locked = !s.locked;
+          renderLayers();
+        }
+      }
+
+      // ── SELECT ──
+      function selectShape(id) {
+        selectedId = id;
+        const s = shapes.find((x) => x.id === id);
+        if (s) updatePanel(s);
+        renderSelection();
+        renderLayers();
+      }
+      function updatePanel(s) {
+        document.getElementById("propX").value = s.x;
+        document.getElementById("propY").value = s.y;
+        document.getElementById("propW").value = s.w;
+        document.getElementById("propH").value = s.h;
+        document.getElementById("propRx").value = s.rx || 0;
+        document.getElementById("propRy").value = s.ry || 0;
+        document.getElementById("colorPicker").value =
+          !s.fill || s.fill === "none" ? "#000000" : s.fill;
+        document.getElementById("strokeColorPicker").value =
+          s.stroke || "#000000";
+        document.getElementById("strokeSlider").value = s.strokeWidth || 0;
+        document.getElementById("strokeVal").textContent = s.strokeWidth || 0;
+        document.getElementById("opacitySlider").value = Math.round(
+          (s.opacity || 1) * 100,
+        );
+        document.getElementById("opacityVal").textContent = Math.round(
+          (s.opacity || 1) * 100,
+        );
+        document.getElementById("rotSlider").value = s.rotation || 0;
+        document.getElementById("rotVal").textContent = s.rotation || 0;
+        document.getElementById("shadowSlider").value = s.shadow || 0;
+        document.getElementById("shadowVal").textContent = s.shadow || 0;
+        document.getElementById("blurSlider").value = s.blur || 0;
+        document.getElementById("blurVal").textContent = s.blur || 0;
+        document.getElementById("borderRadiusGroup").style.display =
+          s.type === "rect" ? "" : "none";
+        setFillType(s.fillType || "solid", true);
+        if ((s.fillType || "solid") === "gradient") {
+          document.getElementById("gradColor1").value =
+            s.gradColor1 || "#4a90e2";
+          document.getElementById("gradColor2").value =
+            s.gradColor2 || "#00c9a7";
+          setGradType(s.gradType || "linear", true);
+          updateGradPreview();
+        }
+        setStrokeDash(s.strokeDash || "solid", true);
+      }
+
+      // ── PROP UPDATES ──
+      function updateProp(k, v) {
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        s[k] = v;
+        renderAll();
+      }
+      function updatePropX(v) {
+        updateProp("x", snap(parseFloat(v)));
+      }
+      function updatePropY(v) {
+        updateProp("y", snap(parseFloat(v)));
+      }
+      function updatePropW(v) {
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        const nw = Math.max(1, parseFloat(v));
+        if (aspectLocked) s.h = Math.round((nw * s.h) / s.w);
+        s.w = nw;
+        renderAll();
+        updatePanel(s);
+      }
+      function updatePropH(v) {
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        const nh = Math.max(1, parseFloat(v));
+        if (aspectLocked) s.w = Math.round((nh * s.w) / s.h);
+        s.h = nh;
+        renderAll();
+        updatePanel(s);
+      }
+      function updatePropRx(v) {
+        updateProp("rx", parseFloat(v));
+      }
+      function updatePropRy(v) {
+        updateProp("ry", parseFloat(v));
+      }
+      function updateColor(v) {
+        updateProp("fill", v);
+      }
+      function updateStrokeColor(v) {
+        updateProp("stroke", v);
+      }
+      function updateStroke(v) {
+        updateProp("strokeWidth", parseInt(v));
+        document.getElementById("strokeVal").textContent = v;
+      }
+      function updateOpacity(v) {
+        updateProp("opacity", v / 100);
+        document.getElementById("opacityVal").textContent = v;
+      }
+      function updateRotation(v) {
+        updateProp("rotation", parseInt(v));
+        document.getElementById("rotVal").textContent = v;
+      }
+      function updateShadow(v) {
+        updateProp("shadow", parseInt(v));
+        document.getElementById("shadowVal").textContent = v;
+      }
+      function updateBlur(v) {
+        updateProp("blur", parseInt(v));
+        document.getElementById("blurVal").textContent = v;
+      }
+      function makeTransparent() {
+        updateProp("fill", "none");
+        updateProp("fillType", "none");
+        setFillType("none", true);
+      }
+      function flipShape(dir) {
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        if (dir === "h") s.flipH = !s.flipH;
+        else s.flipV = !s.flipV;
+        renderAll();
+      }
+      function toggleAspectLock() {
+        aspectLocked = !aspectLocked;
+        document.getElementById("lockAspectBtn").textContent = aspectLocked
+          ? "🔒"
+          : "🔓";
+        toast(aspectLocked ? "Aspect ratio locked" : "Aspect ratio unlocked");
+      }
+
+      function setFillType(type, silent) {
+        fillType = type;
+        ["Solid", "Gradient", "None"].forEach((t) =>
+          document
+            .getElementById("fill" + t + "Btn")
+            .classList.toggle("active", t.toLowerCase() === type),
+        );
+        document.getElementById("solidFillArea").style.display =
+          type === "solid" ? "" : "none";
+        document.getElementById("gradFillArea").style.display =
+          type === "gradient" ? "" : "none";
+        if (!silent) {
+          const s = shapes.find((x) => x.id === selectedId);
+          if (s) {
+            s.fillType = type;
+            if (type === "none") s.fill = "none";
+            renderAll();
+          }
+        }
+      }
+      function setGradType(type, silent) {
+        gradType = type;
+        document
+          .getElementById("gradLinearBtn")
+          .classList.toggle("active", type === "linear");
+        document
+          .getElementById("gradRadialBtn")
+          .classList.toggle("active", type === "radial");
+        if (!silent) {
+          const s = shapes.find((x) => x.id === selectedId);
+          if (s) {
+            s.gradType = type;
+            renderAll();
+          }
+        }
+        updateGradPreview();
+      }
+      function updateGradient() {
+        const c1 = document.getElementById("gradColor1").value,
+          c2 = document.getElementById("gradColor2").value;
+        const s = shapes.find((x) => x.id === selectedId);
+        if (s) {
+          s.gradColor1 = c1;
+          s.gradColor2 = c2;
+          renderAll();
+        }
+        updateGradPreview();
+      }
+      function updateGradPreview() {
+        const c1 = document.getElementById("gradColor1").value,
+          c2 = document.getElementById("gradColor2").value;
+        document.getElementById("gradPreview").style.background =
+          gradType === "radial"
+            ? `radial-gradient(circle,${c1},${c2})`
+            : `linear-gradient(90deg,${c1},${c2})`;
+      }
+      function setStrokeDash(type, silent) {
+        strokeDash = type;
+        ["Solid", "Dashed", "Dotted"].forEach((t) =>
+          document
+            .getElementById("stroke" + t + "Btn")
+            .classList.toggle("active", t.toLowerCase() === type),
+        );
+        if (!silent) {
+          const s = shapes.find((x) => x.id === selectedId);
+          if (s) {
+            s.strokeDash = type;
+            renderAll();
+          }
+        }
+      }
+
+      // ── DRAG ──
+      function startDrag(e, id) {
+        if (activeTool !== "select") return;
+        e.stopPropagation();
+        e.preventDefault();
+        const s = shapes.find((x) => x.id === id);
+        if (s && s.locked) return;
+        selectShape(id);
+        const rect = canvas.getBoundingClientRect(),
+          sc = zoom / 100;
+        dragging = true;
+        dragOffX = (e.clientX - rect.left) / sc - s.x;
+        dragOffY = (e.clientY - rect.top) / sc - s.y;
+        window.addEventListener("mousemove", onDragMove);
+        window.addEventListener("mouseup", onDragEnd);
+      }
+      function onDragMove(e) {
+        if (!dragging || !selectedId) return;
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        const rect = canvas.getBoundingClientRect(),
+          sc = zoom / 100;
+        s.x = snap(Math.round((e.clientX - rect.left) / sc - dragOffX));
+        s.y = snap(Math.round((e.clientY - rect.top) / sc - dragOffY));
+        document.getElementById("propX").value = s.x;
+        document.getElementById("propY").value = s.y;
+        renderAll();
+      }
+      function onDragEnd() {
+        dragging = false;
+        window.removeEventListener("mousemove", onDragMove);
+        window.removeEventListener("mouseup", onDragEnd);
+      }
+
+      // ── CANVAS EVENTS ──
+      canvasArea.addEventListener("mousedown", (e) => {
+        const onCanvas =
+          e.target === canvas ||
+          e.target === canvasArea ||
+          e.target.classList.contains("canvas-bg") ||
+          e.target === canvasWrap;
+        if (onCanvas) {
+          selectedId = null;
+          renderAll();
+        }
+        if (activeTool === "pen") {
+          startPenDraw(e);
+          return;
+        }
+        if (activeTool === "select" && onCanvas) startRubberband(e);
+      });
+
+      // ── PEN TOOL ──
+      function startPenDraw(e) {
+        isPenDrawing = true;
+        penPoints = [svgPt(e)];
+        window.addEventListener("mousemove", onPenMove);
+        window.addEventListener("mouseup", onPenUp);
+      }
+      function onPenMove(e) {
+        if (!isPenDrawing) return;
+        penPoints.push(svgPt(e));
+        renderPenPreview();
+      }
+      function onPenUp() {
+        isPenDrawing = false;
+        window.removeEventListener("mousemove", onPenMove);
+        window.removeEventListener("mouseup", onPenUp);
+        document.getElementById("penGroup").innerHTML = "";
+        if (penPoints.length < 2) return;
+        const xs = penPoints.map((p) => p[0]),
+          ys = penPoints.map((p) => p[1]);
+        const minX = Math.min(...xs),
+          minY = Math.min(...ys);
+        const id = "s" + nextId++;
+        const shape = {
+          id,
+          type: "freehand",
+          x: minX,
+          y: minY,
+          w: Math.max(1, Math.max(...xs) - minX),
+          h: Math.max(1, Math.max(...ys) - minY),
+          fill: "none",
+          fillType: "none",
+          gradColor1: "#4a90e2",
+          gradColor2: "#00c9a7",
+          gradType: "linear",
+          stroke:
+            document.getElementById("strokeColorPicker").value || "#4a90e2",
+          strokeWidth:
+            parseInt(document.getElementById("strokeSlider").value) || 2,
+          strokeDash: "solid",
+          opacity: 1,
+          rotation: 0,
+          rx: 0,
+          ry: 0,
+          shadow: 0,
+          blur: 0,
+          flipH: false,
+          flipV: false,
+          visible: true,
+          locked: false,
+          animation: null,
+          name: "Path " + nextId,
+          points: penPoints,
+        };
+        saveUndo();
+        shapes.push(shape);
+        renderAll();
+        selectShape(id);
+      }
+      function renderPenPreview() {
+        document.getElementById("penGroup").innerHTML =
+          penPoints.length > 1
+            ? `<polyline points="${penPoints.map((p) => p.join(",")).join(" ")}" fill="none" stroke="#4a90e2" stroke-width="2" stroke-dasharray="4,2" opacity="0.8"/>`
+            : "";
+      }
+      function svgPt(e) {
+        const rect = canvas.getBoundingClientRect(),
+          sc = zoom / 100;
+        return [(e.clientX - rect.left) / sc, (e.clientY - rect.top) / sc];
+      }
+
+      // ── RUBBER BAND ──
+      function startRubberband(e) {
+        const rect = canvasArea.getBoundingClientRect();
+        rbStart = [e.clientX - rect.left, e.clientY - rect.top];
+        rubberActive = true;
+        const rb = document.getElementById("rubberband");
+        rb.style.display = "block";
+        window.addEventListener("mousemove", onRbMove);
+        window.addEventListener("mouseup", onRbEnd);
+      }
+      function onRbMove(e) {
+        if (!rubberActive) return;
+        const rect = canvasArea.getBoundingClientRect();
+        const pt = [e.clientX - rect.left, e.clientY - rect.top];
+        const rb = document.getElementById("rubberband");
+        rb.style.left = Math.min(rbStart[0], pt[0]) + "px";
+        rb.style.top = Math.min(rbStart[1], pt[1]) + "px";
+        rb.style.width = Math.abs(pt[0] - rbStart[0]) + "px";
+        rb.style.height = Math.abs(pt[1] - rbStart[1]) + "px";
+      }
+      function onRbEnd() {
+        rubberActive = false;
+        document.getElementById("rubberband").style.display = "none";
+        window.removeEventListener("mousemove", onRbMove);
+        window.removeEventListener("mouseup", onRbEnd);
+      }
+
+      // ── TOOLS ──
+      function selectTool(tool) {
+        currentTool = tool;
+        document
+          .querySelectorAll(".shape-item")
+          .forEach((el) => el.classList.remove("active"));
+        const el = document.getElementById("tool-" + tool);
+        if (el) el.classList.add("active");
+      }
+      function setActiveTool(tool) {
+        activeTool = tool;
+        document
+          .getElementById("tool-select")
+          .classList.toggle("active-tool", tool === "select");
+        document
+          .getElementById("tool-pen")
+          .classList.toggle("active-tool", tool === "pen");
+        canvas.style.cursor = tool === "pen" ? "crosshair" : "default";
+        toast(
+          tool === "pen"
+            ? "✏ Pen tool — draw freely on canvas"
+            : "▷ Select tool",
+        );
+      }
+
+      // ── ZOOM ──
+      function changeZoom(d) {
+        zoom = Math.max(10, Math.min(400, zoom + d));
+        applyZoom();
+      }
+      function resetZoom() {
+        zoom = 100;
+        applyZoom();
+      }
+      function applyZoom() {
+        canvasWrap.style.transform = `scale(${zoom / 100})`;
+        canvasWrap.style.transformOrigin = "center center";
+        document.getElementById("zoomDisplay").textContent = zoom + "%";
+      }
+      function handleWheel(e) {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          changeZoom(e.deltaY > 0 ? -10 : 10);
+        }
+      }
+
+      // ── GRID / SNAP ──
+      function toggleGrid() {
+        gridVisible = !gridVisible;
+        document
+          .getElementById("gridBtn")
+          .classList.toggle("active-tool", gridVisible);
+        drawGrid();
+      }
+      function drawGrid() {
+        const g = document.getElementById("gridG");
+        if (!gridVisible) {
+          g.innerHTML = "";
+          return;
+        }
+        const w = parseInt(canvas.getAttribute("width")),
+          h = parseInt(canvas.getAttribute("height"));
+        let ln = "";
+        for (let x = 0; x <= w; x += GRID)
+          ln += `<line x1="${x}" y1="0" x2="${x}" y2="${h}" stroke="#4a90e222" stroke-width="0.5"/>`;
+        for (let y = 0; y <= h; y += GRID)
+          ln += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="#4a90e222" stroke-width="0.5"/>`;
+        g.innerHTML = ln;
+      }
+      function toggleSnap() {
+        snapEnabled = !snapEnabled;
+        document
+          .getElementById("snapBtn")
+          .classList.toggle("active-tool", snapEnabled);
+        toast(snapEnabled ? "Snap ON" : "Snap OFF");
+      }
+      function snap(v) {
+        return snapEnabled ? Math.round(v / GRID) * GRID : v;
+      }
+
+      // ── CANVAS SIZE ──
+      function setCanvasSize(val) {
+        if (val === "custom") {
+          const w = prompt("Width:", canvas.getAttribute("width"));
+          const h = prompt("Height:", canvas.getAttribute("height"));
+          if (w && h) {
+            canvas.setAttribute("width", w);
+            canvas.setAttribute("height", h);
+            drawGrid();
+          }
+          return;
+        }
+        const [w, h] = val.split("x");
+        canvas.setAttribute("width", w);
+        canvas.setAttribute("height", h);
+        drawGrid();
+        toast(`Canvas: ${w}×${h}`);
+      }
+
+      // ── UNDO/REDO ──
+      function saveUndo() {
+        undoStack.push(JSON.stringify(shapes));
+        redoStack = [];
+        if (undoStack.length > 80) undoStack.shift();
+      }
+      function undo() {
+        if (!undoStack.length) return;
+        redoStack.push(JSON.stringify(shapes));
+        shapes = JSON.parse(undoStack.pop());
+        selectedId = null;
+        renderAll();
+      }
+      function redo() {
+        if (!redoStack.length) return;
+        undoStack.push(JSON.stringify(shapes));
+        shapes = JSON.parse(redoStack.pop());
+        selectedId = null;
+        renderAll();
+      }
+
+      // ── DELETE / DUPLICATE / ALIGN ──
+      function deleteShape(id) {
+        saveUndo();
+        shapes = shapes.filter((s) => s.id !== id);
+        if (selectedId === id) selectedId = null;
+        renderAll();
+      }
+      function deleteSelected() {
+        if (selectedId) deleteShape(selectedId);
+      }
+      function duplicateSelected() {
+        if (!selectedId) return;
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        saveUndo();
+        const copy = JSON.parse(JSON.stringify(s));
+        copy.id = "s" + nextId++;
+        copy.x += 15;
+        copy.y += 15;
+        copy.name = s.name + " copy";
+        shapes.push(copy);
+        renderAll();
+        selectShape(copy.id);
+      }
+      function alignShapes(dir) {
+        if (!selectedId) return;
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        saveUndo();
+        const cw = parseInt(canvas.getAttribute("width")),
+          ch = parseInt(canvas.getAttribute("height"));
+        if (dir === "left") s.x = 0;
+        if (dir === "right") s.x = cw - s.w;
+        if (dir === "center") s.x = (cw - s.w) / 2;
+        if (dir === "top") s.y = 0;
+        if (dir === "bottom") s.y = ch - s.h;
+        if (dir === "middle") s.y = (ch - s.h) / 2;
+        renderAll();
+        updatePanel(s);
+      }
+      function switchAlignTab(btn, tab) {
+        document
+          .querySelectorAll(".atab")
+          .forEach((t) => t.classList.remove("active"));
+        btn.classList.add("active");
+        const g = document.getElementById("alignGrid");
+        if (tab === "arrange") {
+          g.innerHTML = `
+      <button class="abtn" onclick="reorder('top')" title="Bring to Front">⬆⬆</button>
+      <button class="abtn" onclick="reorder('fwd')" title="Bring Forward">⬆</button>
+      <button class="abtn" onclick="reorder('bwd')" title="Send Backward">⬇</button>
+      <button class="abtn" onclick="reorder('bot')" title="Send to Back">⬇⬇</button>
+      <button class="abtn" onclick="duplicateSelected()" title="Duplicate">⧉</button>
+    `;
+        } else {
+          g.innerHTML = `
+      <button class="abtn" onclick="alignShapes('left')">⬅</button>
+      <button class="abtn" onclick="alignShapes('center')">↔</button>
+      <button class="abtn" onclick="alignShapes('right')">➡</button>
+      <button class="abtn" onclick="alignShapes('top')">⬆</button>
+      <button class="abtn" onclick="alignShapes('middle')">↕</button>
+      <button class="abtn" onclick="alignShapes('bottom')">⬇</button>
+      <button class="abtn" onclick="duplicateSelected()">⧉</button>
+      <button class="abtn" onclick="reorder('top')">⬆⬆</button>
+    `;
+        }
+      }
+      function reorder(dir) {
+        if (!selectedId) return;
+        const i = shapes.findIndex((x) => x.id === selectedId);
+        if (i < 0) return;
+        saveUndo();
+        const arr = [...shapes];
+        if (dir === "top") arr.push(arr.splice(i, 1)[0]);
+        else if (dir === "bot") arr.unshift(arr.splice(i, 1)[0]);
+        else if (dir === "fwd" && i < arr.length - 1)
+          [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        else if (dir === "bwd" && i > 0)
+          [arr[i], arr[i - 1]] = [arr[i - 1], arr[i]];
+        shapes = arr;
+        renderAll();
+      }
+
+      // ── ANIMATION ──
+      function openAnimate() {
+        if (!selectedId) {
+          toast("Select a shape first!");
+          return;
+        }
+        document.getElementById("animateModal").classList.add("open");
+      }
+      function selectAnim(el, anim) {
+        document
+          .querySelectorAll(".anim-opt")
+          .forEach((o) => o.classList.remove("selected"));
+        el.classList.add("selected");
+        selectedAnim = anim;
+      }
+      function applyAnimation() {
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        s.animation = { type: selectedAnim, duration: animDuration };
+        closeModal("animateModal");
+        renderAll();
+        toast(`✦ ${selectedAnim} animation applied`);
+      }
+      function removeAnimation() {
+        const s = shapes.find((x) => x.id === selectedId);
+        if (!s) return;
+        s.animation = null;
+        closeModal("animateModal");
+        renderAll();
+      }
+      function makeAnimEl(s) {
+        const anim = s.animation;
+        if (!anim) return null;
+        const dur = anim.duration + "s";
+        const cx = s.x + s.w / 2,
+          cy = s.y + s.h / 2;
+        let a;
+        if (anim.type === "spin") {
+          a = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "animateTransform",
+          );
+          a.setAttribute("attributeName", "transform");
+          a.setAttribute("type", "rotate");
+          a.setAttribute("from", `0 ${cx} ${cy}`);
+          a.setAttribute("to", `360 ${cx} ${cy}`);
+        } else if (anim.type === "pulse") {
+          a = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "animateTransform",
+          );
+          a.setAttribute("attributeName", "transform");
+          a.setAttribute("type", "scale");
+          a.setAttribute("values", "1;1.15;1");
+        } else if (anim.type === "bounce") {
+          a = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "animateTransform",
+          );
+          a.setAttribute("attributeName", "transform");
+          a.setAttribute("type", "translate");
+          a.setAttribute("values", "0,0;0,-15;0,0");
+        } else if (anim.type === "fade") {
+          a = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+          a.setAttribute("attributeName", "opacity");
+          a.setAttribute("values", `${s.opacity};0;${s.opacity}`);
+        } else if (anim.type === "shake") {
+          a = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "animateTransform",
+          );
+          a.setAttribute("attributeName", "transform");
+          a.setAttribute("type", "translate");
+          a.setAttribute("values", "0,0;-8,0;8,0;-4,0;4,0;0,0");
+        } else if (anim.type === "draw") {
+          a = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+          a.setAttribute("attributeName", "stroke-dashoffset");
+          a.setAttribute("values", "1000;0");
+        }
+        if (a) {
+          a.setAttribute("dur", dur);
+          a.setAttribute("repeatCount", "indefinite");
+        }
+        return a;
+      }
+
+      // ── CODE MODAL ──
+      function openCode() {
+        switchCodeTab("svg");
+        document.getElementById("codeModal").classList.add("open");
+      }
+      function switchCodeTab(tab) {
+        codeTab = tab;
+        ["Svg", "Jsx", "Uri"].forEach((t) =>
+          document
+            .getElementById("codeTab" + t)
+            .classList.toggle(
+              "active",
+              t.toLowerCase() === tab ||
+                (tab === "svg" && t === "Svg") ||
+                (tab === "jsx" && t === "Jsx") ||
+                (tab === "uri" && t === "Uri"),
+            ),
+        );
+        const svg = getCleanSVG();
+        if (tab === "svg")
+          document.getElementById("codeOutput").textContent = formatSVG(svg);
+        else if (tab === "jsx")
+          document.getElementById("codeOutput").textContent = toJSX(svg);
+        else
+          document.getElementById("codeOutput").textContent =
+            "data:image/svg+xml;base64," + btoa(svg);
+      }
+      function getCleanSVG() {
+        const el = canvas.cloneNode(true);
+        el.querySelector("#selectionGroup").innerHTML = "";
+        el.querySelector("#penGroup").innerHTML = "";
+        el.querySelector("#gridG").innerHTML = "";
+        el.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        el.removeAttribute("style");
+        return el.outerHTML;
+      }
+      function formatSVG(svg) {
+        return svg.replace(/></g, ">\n<").replace(/\n\s*\n/g, "\n");
+      }
+      function toJSX(svg) {
+        return `import React from 'react';\n\nexport const Icon = (props) => (\n  ${svg.replace(/class=/g, "className=")}\n);\n\nexport default Icon;`;
+      }
+      function copySVGCode() {
+        navigator.clipboard
+          .writeText(document.getElementById("codeOutput").textContent)
+          .then(() => toast("📋 Copied!"));
+      }
+
+      // ── EXPORT ──
+      function toggleExportMenu() {
+        document.getElementById("exportDropdown").classList.toggle("open");
+      }
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".export-wrap"))
+          document.getElementById("exportDropdown").classList.remove("open");
+      });
+      function exportAs(format) {
+        document.getElementById("exportDropdown").classList.remove("open");
+        const svg = getCleanSVG();
+        if (format === "svg" || format === "svg-opt") {
+          const b = new Blob([svg], { type: "image/svg+xml" });
+          dl(URL.createObjectURL(b), "icon.svg");
+          toast("SVG exported!");
+        } else if (format === "png") pngExport(svg, 1);
+        else if (format === "png2x") pngExport(svg, 2);
+        else if (format === "jsx") {
+          const b = new Blob([toJSX(svg)], { type: "text/javascript" });
+          dl(URL.createObjectURL(b), "Icon.jsx");
+          toast("React component exported!");
+        } else if (format === "datauri") {
+          navigator.clipboard
+            .writeText("data:image/svg+xml;base64," + btoa(svg))
+            .then(() => toast("Data URI copied!"));
+        } else if (format === "json") {
+          const b = new Blob([JSON.stringify(shapes, null, 2)], {
+            type: "application/json",
+          });
+          dl(URL.createObjectURL(b), "icon.json");
+          toast("JSON exported!");
+        }
+      }
+      function pngExport(svg, scale) {
+        const w = parseInt(canvas.getAttribute("width")) * scale,
+          h = parseInt(canvas.getAttribute("height")) * scale;
+        const img = new Image();
+        const url = URL.createObjectURL(
+          new Blob([svg], { type: "image/svg+xml" }),
+        );
+        img.onload = () => {
+          const cv = document.createElement("canvas");
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext("2d");
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0);
+          dl(
+            cv.toDataURL("image/png"),
+            "icon" + (scale > 1 ? "@2x" : "") + ".png",
+          );
+          URL.revokeObjectURL(url);
+          toast(`PNG @${scale}x exported!`);
+        };
+        img.src = url;
+      }
+      function dl(url, name) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+      }
+
+      // ── PROJECT SAVE/LOAD ──
+      function openProject() {
+        renderProjectList();
+        document.getElementById("projectModal").classList.add("open");
+      }
+      function saveProject() {
+        const name =
+          document.getElementById("projectNameInput").value.trim() ||
+          "Untitled " + new Date().toLocaleDateString();
+        const projects = JSON.parse(
+          localStorage.getItem("svgProjects") || "[]",
+        );
+        projects.unshift({
+          name,
+          date: new Date().toLocaleDateString(),
+          shapes: JSON.parse(JSON.stringify(shapes)),
+        });
+        localStorage.setItem(
+          "svgProjects",
+          JSON.stringify(projects.slice(0, 20)),
+        );
+        renderProjectList();
+        toast(`💾 Saved: ${name}`);
+      }
+      function loadProject(i) {
+        const p = JSON.parse(localStorage.getItem("svgProjects") || "[]")[i];
+        if (p) {
+          saveUndo();
+          shapes = p.shapes;
+          selectedId = null;
+          renderAll();
+          closeModal("projectModal");
+          toast(`📂 Loaded: ${p.name}`);
+        }
+      }
+      function deleteProject(i) {
+        const p = JSON.parse(localStorage.getItem("svgProjects") || "[]");
+        p.splice(i, 1);
+        localStorage.setItem("svgProjects", JSON.stringify(p));
+        renderProjectList();
+      }
+      function renderProjectList() {
+        const projects = JSON.parse(
+          localStorage.getItem("svgProjects") || "[]",
+        );
+        const list = document.getElementById("projectList");
+        if (!projects.length) {
+          list.innerHTML =
+            '<div style="color:var(--text2);font-size:12px;padding:8px 0;">No saved projects yet.</div>';
+          return;
+        }
+        list.innerHTML = projects
+          .map(
+            (p, i) => `
+    <div class="project-row">
+      <div><div class="project-name">${p.name}</div><div class="project-date">${p.date} · ${p.shapes.length} shapes</div></div>
+      <button class="mbtn" onclick="loadProject(${i})" style="font-size:11px;padding:4px 10px;">Load</button>
+      <button class="mbtn danger" onclick="deleteProject(${i})" style="font-size:11px;padding:4px 8px;">✕</button>
+    </div>`,
+          )
+          .join("");
+      }
+
+      // ── KEYBOARD ──
+      document.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.contentEditable === "true")
+          return;
+        if (e.key === "Delete" || e.key === "Backspace") deleteSelected();
+        if (e.key === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+          e.preventDefault();
+          undo();
+        }
+        if (
+          (e.key === "y" && (e.ctrlKey || e.metaKey)) ||
+          (e.key === "z" && e.shiftKey && (e.ctrlKey || e.metaKey))
+        ) {
+          e.preventDefault();
+          redo();
+        }
+        if (e.key === "d" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          duplicateSelected();
+        }
+        if (e.key === "e" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          exportAs("svg");
+        }
+        if (!e.ctrlKey && !e.metaKey) {
+          if (e.key === "v") setActiveTool("select");
+          if (e.key === "p") setActiveTool("pen");
+          if (e.key === "a") addShapeFromTool();
+          if (e.key === "g") toggleGrid();
+          if (e.key === "f") resetZoom();
+          if (e.key === "]") reorder("fwd");
+          if (e.key === "[") reorder("bwd");
+        }
+        if (selectedId) {
+          const s = shapes.find((x) => x.id === selectedId);
+          if (!s) return;
+          const step = e.shiftKey ? 10 : 1;
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            s.x -= step;
+          }
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            s.x += step;
+          }
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            s.y -= step;
+          }
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            s.y += step;
+          }
+          if (e.key.startsWith("Arrow")) {
+            renderAll();
+            updatePanel(s);
+          }
+        }
+      });
+
+      // ── MODALS ──
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+      function openShortcuts() {
+        document.getElementById("shortcutsModal").classList.add("open");
+      }
+      document.querySelectorAll(".modal-overlay").forEach((el) =>
+        el.addEventListener("click", (e) => {
+          if (e.target === el) el.classList.remove("open");
+        }),
+      );
+
+      // ── INIT ──
+      selectTool("rect");
+      createShape("circle", 210, 160, 80, 80);
+      toast("Welcome to SVG Icon Generator! Press ⌨ Keys for shortcuts.");
+    </script>
+  </body>
+</html>
