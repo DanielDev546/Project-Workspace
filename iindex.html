@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SVG Icon Generator</title>
+    <title>SVG Icon Generator (v.2.1.0)</title>
     <style>
       * {
         margin: 0;
@@ -35,7 +35,6 @@
         user-select: none;
       }
 
-      /* Header */
       header {
         background: var(--panel);
         border-bottom: 1px solid var(--border);
@@ -150,7 +149,6 @@
         margin-left: auto;
       }
 
-      /* Toolbar */
       .toolbar {
         background: var(--panel);
         border-bottom: 1px solid var(--border);
@@ -207,14 +205,12 @@
         outline: none;
       }
 
-      /* Main */
       .main {
         display: flex;
         flex: 1;
         overflow: hidden;
       }
 
-      /* Left Panel */
       .left-panel {
         width: 230px;
         background: var(--panel);
@@ -372,7 +368,7 @@
         border: 1px solid var(--border);
       }
 
-      /* Canvas */
+      /* ── CANVAS ── */
       .canvas-area {
         flex: 1;
         background: #2e2e2e;
@@ -405,7 +401,28 @@
         z-index: 10;
       }
 
-      /* Right Panel */
+      /* Drop zone overlay */
+      #dropOverlay {
+        position: absolute;
+        inset: 0;
+        background: #4a90e222;
+        border: 3px dashed var(--accent);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        pointer-events: none;
+        border-radius: 4px;
+      }
+      #dropOverlay span {
+        font-size: 18px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .canvas-area.drag-over #dropOverlay {
+        display: flex;
+      }
+
       .right-panel {
         width: 220px;
         background: var(--panel);
@@ -573,7 +590,6 @@
         border-color: var(--accent);
       }
 
-      /* Shortcuts */
       .shortcuts {
         padding: 10px 14px;
       }
@@ -601,7 +617,6 @@
         color: var(--text2);
       }
 
-      /* Modals */
       .modal-overlay {
         display: none;
         position: fixed;
@@ -733,7 +748,70 @@
         color: var(--text2);
       }
 
-      /* Toast */
+      /* ── CANVAS BG CUSTOMIZER ── */
+      .bg-preview-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .bg-opt {
+        flex: 1;
+        height: 44px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text2);
+      }
+      .bg-opt:hover {
+        border-color: var(--text2);
+      }
+      .bg-opt.active {
+        border-color: var(--accent);
+      }
+      .bg-checker {
+        background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0/12px
+          12px;
+      }
+      .bg-solid {
+        background: var(--panel2);
+      }
+      .bg-image-opt {
+        background: var(--panel2);
+        border: 1px dashed var(--border) !important;
+      }
+
+      /* ── IMAGE IMPORT ZONE ── */
+      .import-zone {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 18px 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.15s;
+        margin-bottom: 8px;
+      }
+      .import-zone:hover {
+        border-color: var(--accent);
+        background: var(--selected);
+      }
+      .import-zone-label {
+        font-size: 11px;
+        color: var(--text2);
+        line-height: 1.6;
+        pointer-events: none;
+      }
+      .import-zone-icon {
+        font-size: 22px;
+        display: block;
+        margin-bottom: 6px;
+      }
+
       #toast {
         position: fixed;
         bottom: 24px;
@@ -755,10 +833,15 @@
         opacity: 1;
         transform: translateX(-50%) translateY(0);
       }
+
+      /* hidden file inputs */
+      #imageFileInput,
+      #bgFileInput {
+        display: none;
+      }
     </style>
   </head>
   <body>
-    <!-- HEADER -->
     <header>
       <div class="logo-dots">
         <span class="dot blue"></span><span class="dot gray"></span
@@ -803,7 +886,6 @@
       </div>
     </header>
 
-    <!-- TOOLBAR -->
     <div class="toolbar">
       <button
         class="tbtn active-tool"
@@ -850,7 +932,6 @@
       </button>
     </div>
 
-    <!-- MAIN -->
     <div class="main">
       <!-- LEFT PANEL -->
       <div class="left-panel">
@@ -896,6 +977,156 @@
           </div>
         </div>
 
+        <!-- ── IMAGE IMPORT ── -->
+        <div class="sec-title" style="color: var(--accent)">
+          🖼 Import Image / Icon
+        </div>
+        <div class="cgroup">
+          <div
+            class="import-zone"
+            id="importZone"
+            onclick="document.getElementById('imageFileInput').click()"
+          >
+            <span class="import-zone-icon">📁</span>
+            <span class="import-zone-label"
+              >Click to browse or drag &amp; drop<br />PNG, JPG, SVG, WEBP,
+              GIF</span
+            >
+          </div>
+          <input
+            type="file"
+            id="imageFileInput"
+            accept="image/*,.svg"
+            onchange="handleImageFile(this.files[0])"
+          />
+          <div style="display: flex; gap: 6px">
+            <button
+              class="icon-btn"
+              style="flex: 1"
+              onclick="document.getElementById('imageFileInput').click()"
+            >
+              📂 Browse File
+            </button>
+            <button class="icon-btn" style="flex: 1" onclick="openPasteUrl()">
+              🔗 Paste URL
+            </button>
+          </div>
+        </div>
+
+        <!-- ── CANVAS BACKGROUND ── -->
+        <div class="sec-title">🎨 Canvas Background</div>
+        <div class="cgroup">
+          <div class="clabel">Background style</div>
+          <div class="bg-preview-row">
+            <div
+              class="bg-opt bg-checker active"
+              id="bgOptChecker"
+              onclick="setCanvasBg('checker')"
+              title="Checkerboard"
+            ></div>
+            <div
+              class="bg-opt bg-solid active"
+              id="bgOptSolid"
+              onclick="setCanvasBg('solid')"
+              title="Solid color"
+              style="font-size: 11px"
+            >
+              ■
+            </div>
+            <div
+              class="bg-opt bg-image-opt"
+              id="bgOptImage"
+              onclick="document.getElementById('bgFileInput').click()"
+              title="Custom image"
+              style="font-size: 18px"
+            >
+              🖼
+            </div>
+          </div>
+          <input
+            type="file"
+            id="bgFileInput"
+            accept="image/*"
+            onchange="handleBgFile(this.files[0])"
+          />
+          <div id="bgSolidControls" style="display: none; margin-top: 8px">
+            <div class="clabel">Background color</div>
+            <div class="swatch">
+              <input
+                type="color"
+                id="bgColorPicker"
+                value="#ffffff"
+                oninput="applyCanvasBgColor(this.value)"
+              />
+            </div>
+          </div>
+          <div id="bgImageControls" style="display: none; margin-top: 8px">
+            <div class="clabel">Background image</div>
+            <div style="display: flex; gap: 6px; margin-top: 4px">
+              <button
+                class="icon-btn"
+                style="flex: 1"
+                onclick="document.getElementById('bgFileInput').click()"
+              >
+                Change Image
+              </button>
+              <button
+                class="icon-btn danger"
+                style="flex: 1"
+                onclick="clearCanvasBg()"
+              >
+                Clear
+              </button>
+            </div>
+            <div class="clabel" style="margin-top: 8px">Fit mode</div>
+            <div class="pill-row" style="margin-top: 0">
+              <button
+                class="pill-btn active"
+                id="bgFitFill"
+                onclick="setBgFit('cover')"
+              >
+                Cover
+              </button>
+              <button
+                class="pill-btn"
+                id="bgFitContain"
+                onclick="setBgFit('contain')"
+              >
+                Contain
+              </button>
+              <button
+                class="pill-btn"
+                id="bgFitTile"
+                onclick="setBgFit('tile')"
+              >
+                Tile
+              </button>
+            </div>
+            <div class="clabel" style="margin-top: 8px">
+              Opacity
+              <span class="clabel-val"
+                ><span id="bgOpacityVal">100</span>%</span
+              >
+            </div>
+            <input
+              type="range"
+              class="slider"
+              id="bgOpacitySlider"
+              min="0"
+              max="100"
+              value="100"
+              oninput="setBgOpacity(this.value)"
+            />
+          </div>
+          <button
+            class="icon-btn"
+            style="margin-top: 8px"
+            onclick="setCanvasBg('none')"
+          >
+            ✕ No Background
+          </button>
+        </div>
+
         <div class="sec-title">Control Panel</div>
 
         <div class="cgroup">
@@ -923,7 +1154,6 @@
             </div>
           </div>
         </div>
-
         <div class="cgroup">
           <div class="clabel">
             Size
@@ -960,7 +1190,6 @@
             </div>
           </div>
         </div>
-
         <div class="cgroup" id="borderRadiusGroup" style="display: none">
           <div class="clabel">Border Radius</div>
           <div class="crow">
@@ -988,7 +1217,6 @@
             </div>
           </div>
         </div>
-
         <div class="cgroup">
           <div class="clabel">
             Rotation <span class="clabel-val"><span id="rotVal">0</span>°</span>
@@ -1003,7 +1231,6 @@
             oninput="updateRotation(this.value)"
           />
         </div>
-
         <div class="cgroup">
           <div class="clabel">Transform</div>
           <div class="crow">
@@ -1015,7 +1242,6 @@
             </button>
           </div>
         </div>
-
         <div class="cgroup">
           <div class="clabel">Fill</div>
           <div class="pill-row">
@@ -1094,7 +1320,6 @@
             ></div>
           </div>
         </div>
-
         <div class="cgroup">
           <div class="clabel">Stroke Color</div>
           <div class="swatch">
@@ -1143,7 +1368,6 @@
             </button>
           </div>
         </div>
-
         <div class="cgroup">
           <div class="clabel">
             Opacity
@@ -1159,7 +1383,6 @@
             oninput="updateOpacity(this.value)"
           />
         </div>
-
         <div class="cgroup">
           <div class="clabel">
             Drop Shadow
@@ -1175,7 +1398,6 @@
             oninput="updateShadow(this.value)"
           />
         </div>
-
         <div class="cgroup">
           <div class="clabel">
             Blur <span class="clabel-val"><span id="blurVal">0</span>px</span>
@@ -1190,7 +1412,6 @@
             oninput="updateBlur(this.value)"
           />
         </div>
-
         <div class="cgroup">
           <div class="clabel">Actions</div>
           <div style="display: flex; flex-direction: column; gap: 6px">
@@ -1209,7 +1430,8 @@
 
       <!-- CANVAS -->
       <div class="canvas-area" id="canvasArea" onwheel="handleWheel(event)">
-        <div class="canvas-bg"></div>
+        <div class="canvas-bg" id="canvasBgEl"></div>
+        <div id="dropOverlay"><span>Drop image here</span></div>
         <div id="rubberband"></div>
         <div class="canvas-wrap" id="canvasWrap">
           <svg
@@ -1223,7 +1445,33 @@
               display: block;
             "
           >
-            <defs id="svgDefs"></defs>
+            <defs id="svgDefs">
+              <pattern
+                id="bgImgPattern"
+                patternUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="500"
+                height="400"
+              >
+                <image
+                  id="bgImgEl"
+                  href=""
+                  x="0"
+                  y="0"
+                  width="500"
+                  height="400"
+                  preserveAspectRatio="xMidYMid slice"
+                />
+              </pattern>
+            </defs>
+            <rect
+              id="bgRect"
+              width="500"
+              height="400"
+              fill="none"
+              style="pointer-events: none"
+            />
             <g id="gridG" style="pointer-events: none"></g>
             <g id="shapesGroup"></g>
             <g id="selectionGroup"></g>
@@ -1379,7 +1627,7 @@
         </div>
         <div style="padding: 0 14px 10px" id="layersList"></div>
 
-        <div class="sec-title">Align & Arrange</div>
+        <div class="sec-title">Align &amp; Arrange</div>
         <div class="align-tabs">
           <button class="atab active" onclick="switchAlignTab(this, 'align')">
             Align
@@ -1542,6 +1790,9 @@
             <span class="sc-label">Add shape</span><span class="kbd">A</span>
           </div>
           <div class="shortcut-row">
+            <span class="sc-label">Import image</span><span class="kbd">I</span>
+          </div>
+          <div class="shortcut-row">
             <span class="sc-label">Delete</span><span class="kbd">Del</span>
           </div>
           <div class="shortcut-row">
@@ -1593,41 +1844,48 @@
       </div>
     </div>
 
+    <!-- Paste URL modal -->
+    <div class="modal-overlay" id="pasteUrlModal">
+      <div class="modal" style="min-width: 360px">
+        <h2>🔗 Import from URL</h2>
+        <div class="clabel" style="margin-bottom: 6px">
+          Image URL (PNG, JPG, SVG, WEBP)
+        </div>
+        <input
+          class="cinp"
+          id="pasteUrlInput"
+          placeholder="https://example.com/icon.png"
+          style="margin-bottom: 12px"
+        />
+        <div class="modal-btns">
+          <button class="mbtn" onclick="closeModal('pasteUrlModal')">
+            Cancel
+          </button>
+          <button class="mbtn primary" onclick="importFromUrl()">Import</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast"></div>
 
     <script>
+      // ── AI GENERATE ──
       async function generateWithAI() {
         const prompt = document.getElementById("aiPrompt").value;
         const status = document.getElementById("aiStatus");
         const btn = document.getElementById("generateBtn");
-
         if (!prompt) {
           showToast("Please enter a description!");
           return;
         }
-
-        // UI Feedback
         btn.disabled = true;
         btn.innerText = "Generating...";
         status.innerText = "AI is thinking...";
-
         try {
-          // --- API PLACEHOLDER ---
-          // In a real app, you would fetch from your server here:
-          // const response = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt}) });
-          // const data = await response.json();
-
-          // Simulating a delay for the "AI" feel
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-
-          // For now, let's trigger a success message and add a random shape
-          // This is where you would parse AI SVG data and add it to your 'shapes' array
+          await new Promise((r) => setTimeout(r, 1500));
           showToast("AI Generated your icon!");
-
-          // Example: Adding a basic shape to show it works
           addShapeFromTool();
-        } catch (error) {
-          console.error(error);
+        } catch (e) {
           showToast("AI Error: Connection failed");
         } finally {
           btn.disabled = false;
@@ -1635,8 +1893,6 @@
           status.innerText = "Ready for next prompt.";
         }
       }
-
-      // Helper for your existing toast system
       function showToast(msg) {
         const t = document.getElementById("toast");
         t.textContent = msg;
@@ -1676,6 +1932,13 @@
       let rubberActive = false,
         rbStart = null;
 
+      // Canvas background state
+      let canvasBgMode = "checker"; // 'checker' | 'solid' | 'image' | 'none'
+      let canvasBgColor = "#ffffff";
+      let canvasBgImageData = null;
+      let canvasBgFit = "cover";
+      let canvasBgOpacity = 1;
+
       const canvas = document.getElementById("main-canvas");
       const shapesGroup = document.getElementById("shapesGroup");
       const selectionGroup = document.getElementById("selectionGroup");
@@ -1683,7 +1946,6 @@
       const canvasWrap = document.getElementById("canvasWrap");
       const canvasArea = document.getElementById("canvasArea");
 
-      // ── TOAST ──
       function toast(msg) {
         const el = document.getElementById("toast");
         el.textContent = msg;
@@ -1691,6 +1953,237 @@
         clearTimeout(el._t);
         el._t = setTimeout(() => el.classList.remove("show"), 2200);
       }
+
+      // ── CANVAS BACKGROUND ──
+      function setCanvasBg(mode) {
+        canvasBgMode = mode;
+        // Update option highlights
+        document
+          .getElementById("bgOptChecker")
+          .classList.toggle("active", mode === "checker");
+        document
+          .getElementById("bgOptSolid")
+          .classList.toggle("active", mode === "solid");
+        document
+          .getElementById("bgOptImage")
+          .classList.toggle("active", mode === "image");
+        document.getElementById("bgSolidControls").style.display =
+          mode === "solid" ? "" : "none";
+        document.getElementById("bgImageControls").style.display =
+          mode === "image" ? "" : "none";
+        applyCanvasBg();
+      }
+
+      function applyCanvasBg() {
+        const bgRect = document.getElementById("bgRect");
+        const cw = parseInt(canvas.getAttribute("width"));
+        const ch = parseInt(canvas.getAttribute("height"));
+        bgRect.setAttribute("width", cw);
+        bgRect.setAttribute("height", ch);
+
+        if (canvasBgMode === "none") {
+          canvas.style.background = "transparent";
+          bgRect.setAttribute("fill", "none");
+        } else if (canvasBgMode === "checker") {
+          canvas.style.background = "#fff";
+          bgRect.setAttribute("fill", "none");
+        } else if (canvasBgMode === "solid") {
+          canvas.style.background = canvasBgColor;
+          bgRect.setAttribute("fill", "none");
+        } else if (canvasBgMode === "image" && canvasBgImageData) {
+          canvas.style.background = "#fff";
+          const imgEl = document.getElementById("bgImgEl");
+          const pat = document.getElementById("bgImgPattern");
+          imgEl.setAttribute("href", canvasBgImageData);
+          imgEl.setAttribute("opacity", canvasBgOpacity);
+
+          if (canvasBgFit === "tile") {
+            // Tile: use natural pattern repeat
+            pat.setAttribute("width", Math.round(cw / 3));
+            pat.setAttribute("height", Math.round(ch / 3));
+            imgEl.setAttribute("width", Math.round(cw / 3));
+            imgEl.setAttribute("height", Math.round(ch / 3));
+            imgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
+          } else {
+            pat.setAttribute("width", cw);
+            pat.setAttribute("height", ch);
+            imgEl.setAttribute("width", cw);
+            imgEl.setAttribute("height", ch);
+            imgEl.setAttribute(
+              "preserveAspectRatio",
+              canvasBgFit === "cover" ? "xMidYMid slice" : "xMidYMid meet",
+            );
+          }
+          bgRect.setAttribute("fill", "url(#bgImgPattern)");
+        }
+      }
+
+      function applyCanvasBgColor(val) {
+        canvasBgColor = val;
+        applyCanvasBg();
+      }
+
+      function setBgFit(fit) {
+        canvasBgFit = fit;
+        ["Cover", "Contain", "Tile"].forEach((f) =>
+          document
+            .getElementById("bgFit" + f)
+            .classList.toggle("active", f.toLowerCase() === fit),
+        );
+        applyCanvasBg();
+      }
+
+      function setBgOpacity(val) {
+        canvasBgOpacity = val / 100;
+        document.getElementById("bgOpacityVal").textContent = val;
+        applyCanvasBg();
+      }
+
+      function clearCanvasBg() {
+        canvasBgImageData = null;
+        setCanvasBg("checker");
+        toast("Background cleared");
+      }
+
+      function handleBgFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          canvasBgImageData = e.target.result;
+          setCanvasBg("image");
+          toast("Background image set!");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // ── IMAGE IMPORT ──
+      function handleImageFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => placeImageOnCanvas(e.target.result, file.name);
+        reader.readAsDataURL(file);
+      }
+
+      function placeImageOnCanvas(dataUrl, name) {
+        const cw = parseInt(canvas.getAttribute("width"));
+        const ch = parseInt(canvas.getAttribute("height"));
+        const img = new Image();
+        img.onload = () => {
+          const maxW = Math.min(img.width, cw * 0.6);
+          const maxH = Math.min(img.height, ch * 0.6);
+          const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          const x = Math.round((cw - w) / 2);
+          const y = Math.round((ch - h) / 2);
+          const id = "s" + nextId++;
+          const shape = {
+            id,
+            type: "image",
+            x,
+            y,
+            w,
+            h,
+            fill: "none",
+            fillType: "none",
+            gradColor1: "#4a90e2",
+            gradColor2: "#00c9a7",
+            gradType: "linear",
+            stroke: "none",
+            strokeWidth: 0,
+            strokeDash: "solid",
+            opacity: 1,
+            rotation: 0,
+            rx: 0,
+            ry: 0,
+            shadow: 0,
+            blur: 0,
+            flipH: false,
+            flipV: false,
+            visible: true,
+            locked: false,
+            animation: null,
+            name: name || "Image",
+            imageData: dataUrl,
+            preserveAspectRatio: "xMidYMid meet",
+          };
+          saveUndo();
+          shapes.push(shape);
+          renderAll();
+          selectShape(id);
+          toast(`Image imported: ${name || "image"}`);
+        };
+        img.src = dataUrl;
+      }
+
+      function openPasteUrl() {
+        document.getElementById("pasteUrlInput").value = "";
+        document.getElementById("pasteUrlModal").classList.add("open");
+      }
+
+      function importFromUrl() {
+        const url = document.getElementById("pasteUrlInput").value.trim();
+        if (!url) {
+          toast("Please enter a URL");
+          return;
+        }
+        closeModal("pasteUrlModal");
+        // Use fetch to load as blob → base64 to avoid CORS taint on canvas
+        fetch(url)
+          .then((r) => r.blob())
+          .then((blob) => {
+            const reader = new FileReader();
+            reader.onload = (e) =>
+              placeImageOnCanvas(e.target.result, url.split("/").pop());
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => {
+            // Fallback: use href directly (works for SVG/same-origin)
+            placeImageOnCanvas(url, url.split("/").pop());
+          });
+        toast("Importing…");
+      }
+
+      // Drag & drop images onto canvas area
+      canvasArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        canvasArea.classList.add("drag-over");
+      });
+      canvasArea.addEventListener("dragleave", (e) => {
+        if (!canvasArea.contains(e.relatedTarget))
+          canvasArea.classList.remove("drag-over");
+      });
+      canvasArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        canvasArea.classList.remove("drag-over");
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith("image/")) {
+          handleImageFile(files[0]);
+        } else {
+          // Check for URL in dataTransfer
+          const url =
+            e.dataTransfer.getData("text/uri-list") ||
+            e.dataTransfer.getData("text/plain");
+          if (url && url.startsWith("http"))
+            placeImageOnCanvas(url, url.split("/").pop());
+        }
+      });
+
+      // Import zone drag & drop
+      const importZone = document.getElementById("importZone");
+      importZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        importZone.style.borderColor = "var(--accent)";
+      });
+      importZone.addEventListener("dragleave", () => {
+        importZone.style.borderColor = "";
+      });
+      importZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        importZone.style.borderColor = "";
+        const files = e.dataTransfer.files;
+        if (files.length > 0) handleImageFile(files[0]);
+      });
 
       // ── PRESETS ──
       const PRESETS = [
@@ -1824,7 +2317,6 @@
         selectShape(id);
         return shape;
       }
-
       function addShapeFromTool() {
         const cw = parseInt(canvas.getAttribute("width")),
           ch = parseInt(canvas.getAttribute("height"));
@@ -1835,11 +2327,17 @@
       function renderAll() {
         shapesGroup.innerHTML = "";
         selectionGroup.innerHTML = "";
-        svgDefs.innerHTML = "";
+        // Rebuild defs (keep bg pattern + new defs)
+        svgDefs.innerHTML = `
+          <pattern id="bgImgPattern" patternUnits="userSpaceOnUse" x="0" y="0" width="${canvas.getAttribute("width")}" height="${canvas.getAttribute("height")}">
+            <image id="bgImgEl" href="${canvasBgImageData || ""}" x="0" y="0" width="${canvas.getAttribute("width")}" height="${canvas.getAttribute("height")}" preserveAspectRatio="${canvasBgFit === "cover" ? "xMidYMid slice" : "xMidYMid meet"}" opacity="${canvasBgOpacity}"/>
+          </pattern>
+        `;
+        // Re-apply bg after defs rebuild
+        applyCanvasBg();
 
         shapes.forEach((s) => {
           if (!s.visible) return;
-          // Filter
           let filterId = null;
           if (s.shadow > 0 || s.blur > 0) {
             filterId = "flt_" + s.id;
@@ -1860,7 +2358,6 @@
             filt.innerHTML = inner;
             svgDefs.appendChild(filt);
           }
-          // Gradient
           let fillAttr = s.fill;
           if (s.fillType === "gradient") {
             const gid = "grad_" + s.id;
@@ -1889,13 +2386,11 @@
             svgDefs.appendChild(gradEl);
             fillAttr = `url(#${gid})`;
           }
-          // Dash
           let dash = "";
           if (s.strokeDash === "dashed")
             dash = `${Math.max(4, s.strokeWidth * 3)},${Math.max(2, s.strokeWidth * 2)}`;
           if (s.strokeDash === "dotted")
             dash = `${s.strokeWidth},${Math.max(3, s.strokeWidth * 2)}`;
-
           const cx = s.x + s.w / 2,
             cy = s.y + s.h / 2;
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -1906,18 +2401,36 @@
           g.style.cursor = s.locked ? "not-allowed" : "move";
 
           function applyAttrs(el) {
-            el.setAttribute("fill", fillAttr);
-            el.setAttribute("stroke", s.stroke);
-            el.setAttribute("stroke-width", s.strokeWidth);
+            if (s.type !== "image") {
+              el.setAttribute("fill", fillAttr);
+              el.setAttribute("stroke", s.stroke);
+              el.setAttribute("stroke-width", s.strokeWidth);
+              if (dash) el.setAttribute("stroke-dasharray", dash);
+              el.setAttribute("stroke-linecap", "round");
+              el.setAttribute("stroke-linejoin", "round");
+            }
             el.setAttribute("opacity", s.opacity);
-            if (dash) el.setAttribute("stroke-dasharray", dash);
             if (filterId) el.setAttribute("filter", `url(#${filterId})`);
-            el.setAttribute("stroke-linecap", "round");
-            el.setAttribute("stroke-linejoin", "round");
           }
 
           let el;
-          if (s.type === "rect") {
+          if (s.type === "image") {
+            el = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "image",
+            );
+            el.setAttribute("x", s.x);
+            el.setAttribute("y", s.y);
+            el.setAttribute("width", s.w);
+            el.setAttribute("height", s.h);
+            el.setAttribute("href", s.imageData);
+            el.setAttribute(
+              "preserveAspectRatio",
+              s.preserveAspectRatio || "xMidYMid meet",
+            );
+            el.setAttribute("opacity", s.opacity);
+            if (filterId) el.setAttribute("filter", `url(#${filterId})`);
+          } else if (s.type === "rect") {
             el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             el.setAttribute("x", s.x);
             el.setAttribute("y", s.y);
@@ -2017,7 +2530,7 @@
             el.setAttribute("fill", "none");
           }
 
-          applyAttrs(el);
+          if (s.type !== "image") applyAttrs(el);
           if (s.animation) {
             const ae = makeAnimEl(s);
             if (ae) el.appendChild(ae);
@@ -2027,7 +2540,6 @@
           g.appendChild(el);
           shapesGroup.appendChild(g);
         });
-
         renderSelection();
         renderLayers();
       }
@@ -2123,7 +2635,6 @@
         selectionGroup.appendChild(g);
       }
 
-      // ── RESIZE ──
       function startResize(e, id, dir) {
         e.stopPropagation();
         e.preventDefault();
@@ -2141,8 +2652,8 @@
         if (!resizing || !selectedId) return;
         const s = shapes.find((x) => x.id === selectedId);
         if (!s) return;
-        const dx = (e.clientX - resizeStartX) / (zoom / 100);
-        const dy = (e.clientY - resizeStartY) / (zoom / 100);
+        const dx = (e.clientX - resizeStartX) / (zoom / 100),
+          dy = (e.clientY - resizeStartY) / (zoom / 100);
         const o = resizeOrig,
           dir = resizeHandle;
         let { x, y, w, h } = o;
@@ -2181,11 +2692,8 @@
           const div = document.createElement("div");
           div.className =
             "layer-item" + (s.id === selectedId ? " active-layer" : "");
-          div.innerHTML = `
-      <button class="layer-vis" onclick="toggleVis('${s.id}')">${s.visible ? "👁" : "🚫"}</button>
-      <span class="layer-name" onclick="selectShape('${s.id}')" ondblclick="renameLayer('${s.id}',this)">${s.name || s.type}</span>
-      <button class="layer-lock" onclick="toggleShapeLock('${s.id}')">${s.locked ? "🔒" : "🔓"}</button>
-      <button class="layer-del" onclick="deleteShape('${s.id}')">✕</button>`;
+          const icon = s.type === "image" ? "🖼" : "◻";
+          div.innerHTML = `<button class="layer-vis" onclick="toggleVis('${s.id}')">${s.visible ? "👁" : "🚫"}</button><span class="layer-name" onclick="selectShape('${s.id}')" ondblclick="renameLayer('${s.id}',this)">${icon} ${s.name || s.type}</span><button class="layer-lock" onclick="toggleShapeLock('${s.id}')">${s.locked ? "🔒" : "🔓"}</button><button class="layer-del" onclick="deleteShape('${s.id}')">✕</button>`;
           list.appendChild(div);
         });
       }
@@ -2544,8 +3052,7 @@
         const rect = canvasArea.getBoundingClientRect();
         rbStart = [e.clientX - rect.left, e.clientY - rect.top];
         rubberActive = true;
-        const rb = document.getElementById("rubberband");
-        rb.style.display = "block";
+        document.getElementById("rubberband").style.display = "block";
         window.addEventListener("mousemove", onRbMove);
         window.addEventListener("mouseup", onRbEnd);
       }
@@ -2655,6 +3162,7 @@
             canvas.setAttribute("width", w);
             canvas.setAttribute("height", h);
             drawGrid();
+            applyCanvasBg();
           }
           return;
         }
@@ -2662,6 +3170,7 @@
         canvas.setAttribute("width", w);
         canvas.setAttribute("height", h);
         drawGrid();
+        applyCanvasBg();
         toast(`Canvas: ${w}×${h}`);
       }
 
@@ -2733,24 +3242,9 @@
         btn.classList.add("active");
         const g = document.getElementById("alignGrid");
         if (tab === "arrange") {
-          g.innerHTML = `
-      <button class="abtn" onclick="reorder('top')" title="Bring to Front">⬆⬆</button>
-      <button class="abtn" onclick="reorder('fwd')" title="Bring Forward">⬆</button>
-      <button class="abtn" onclick="reorder('bwd')" title="Send Backward">⬇</button>
-      <button class="abtn" onclick="reorder('bot')" title="Send to Back">⬇⬇</button>
-      <button class="abtn" onclick="duplicateSelected()" title="Duplicate">⧉</button>
-    `;
+          g.innerHTML = `<button class="abtn" onclick="reorder('top')" title="Bring to Front">⬆⬆</button><button class="abtn" onclick="reorder('fwd')" title="Bring Forward">⬆</button><button class="abtn" onclick="reorder('bwd')" title="Send Backward">⬇</button><button class="abtn" onclick="reorder('bot')" title="Send to Back">⬇⬇</button><button class="abtn" onclick="duplicateSelected()" title="Duplicate">⧉</button>`;
         } else {
-          g.innerHTML = `
-      <button class="abtn" onclick="alignShapes('left')">⬅</button>
-      <button class="abtn" onclick="alignShapes('center')">↔</button>
-      <button class="abtn" onclick="alignShapes('right')">➡</button>
-      <button class="abtn" onclick="alignShapes('top')">⬆</button>
-      <button class="abtn" onclick="alignShapes('middle')">↕</button>
-      <button class="abtn" onclick="alignShapes('bottom')">⬇</button>
-      <button class="abtn" onclick="duplicateSelected()">⧉</button>
-      <button class="abtn" onclick="reorder('top')">⬆⬆</button>
-    `;
+          g.innerHTML = `<button class="abtn" onclick="alignShapes('left')">⬅</button><button class="abtn" onclick="alignShapes('center')">↔</button><button class="abtn" onclick="alignShapes('right')">➡</button><button class="abtn" onclick="alignShapes('top')">⬆</button><button class="abtn" onclick="alignShapes('middle')">↕</button><button class="abtn" onclick="alignShapes('bottom')">⬇</button><button class="abtn" onclick="duplicateSelected()">⧉</button><button class="abtn" onclick="reorder('top')">⬆⬆</button>`;
         }
       }
       function reorder(dir) {
@@ -3021,12 +3515,8 @@
         }
         list.innerHTML = projects
           .map(
-            (p, i) => `
-    <div class="project-row">
-      <div><div class="project-name">${p.name}</div><div class="project-date">${p.date} · ${p.shapes.length} shapes</div></div>
-      <button class="mbtn" onclick="loadProject(${i})" style="font-size:11px;padding:4px 10px;">Load</button>
-      <button class="mbtn danger" onclick="deleteProject(${i})" style="font-size:11px;padding:4px 8px;">✕</button>
-    </div>`,
+            (p, i) =>
+              `<div class="project-row"><div><div class="project-name">${p.name}</div><div class="project-date">${p.date} · ${p.shapes.length} shapes</div></div><button class="mbtn" onclick="loadProject(${i})" style="font-size:11px;padding:4px 10px;">Load</button><button class="mbtn danger" onclick="deleteProject(${i})" style="font-size:11px;padding:4px 8px;">✕</button></div>`,
           )
           .join("");
       }
@@ -3059,6 +3549,7 @@
           if (e.key === "v") setActiveTool("select");
           if (e.key === "p") setActiveTool("pen");
           if (e.key === "a") addShapeFromTool();
+          if (e.key === "i") document.getElementById("imageFileInput").click();
           if (e.key === "g") toggleGrid();
           if (e.key === "f") resetZoom();
           if (e.key === "]") reorder("fwd");
@@ -3106,8 +3597,9 @@
 
       // ── INIT ──
       selectTool("rect");
+      setCanvasBg("checker");
       createShape("circle", 210, 160, 80, 80);
-      toast("Welcome to SVG Icon Generator! Press ⌨ Keys for shortcuts.");
+      toast("Welcome to SVG Icon Generator v2.1! Press I to import an image.");
     </script>
   </body>
 </html>
