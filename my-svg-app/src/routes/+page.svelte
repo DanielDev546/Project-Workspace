@@ -310,10 +310,75 @@ function alignShapes(dir) {
     onswitchcodetab={updateCodeOutput}
     onimporturl={handleImportUrl}
   />
+  
+
+
+  <!-- New Chill Footer Bar -->
+  <footer class="footer-bar">
+    <div class="footer-left">
+      <span class="status-dot"></span>
+      <span>System Ready</span>
+    </div>
+    <div class="footer-center"> 
+      © 2026 SVG Icon Generator v2.1 by <span class="brand">DevLion</span>
+    </div>
+    <div class="footer-right">
+      <span>v2.1.0</span>
+      <span class="separator">|</span>
+      <span>Lagos, NG</span>
+    </div>
+  </footer>
+
+  <Modals bind:this={modalsRef} onapplyanim={applyAnimation} onremoveanim={removeAnimation} onswitchcodetab={updateCodeOutput} onimporturl={handleImportUrl} />
   <Toast />
 </div>
+  
+
 
 <style>
+.footer-bar {
+  height: 28px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--text2);
+  letter-spacing: 0.5px;
+  z-index: 50;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #4ade80; /* Success green */
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+.brand {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.footer-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.separator {
+  color: var(--border);
+}
   :global(*) { margin: 0; padding: 0; box-sizing: border-box; }
   :global(:root) {
     --bg: #1a1a1a; --panel: #242424; --panel2: #2e2e2e;
@@ -324,4 +389,5 @@ function alignShapes(dir) {
   :global(body) { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; font-size: 12px; overflow: hidden; user-select: none; }
   .app  { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
   .main { display: flex; flex: 1; overflow: hidden; }
+
 </style>
