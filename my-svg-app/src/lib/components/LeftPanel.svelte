@@ -3,6 +3,9 @@
 
   let { onaddshape, onimportimage } = $props();
 
+  import { aiState, askAI } from '$lib/ai.svelte.js';
+    let inputVal = $state("");
+
   // AI
   let aiPrompt = $state('');
   let aiGenerating = $state(false);
@@ -118,24 +121,17 @@
   <!-- AI -->
   <div class="sec-title accent">✨ AI Magic Prompt</div>
   <div class="cgroup">
-    <div class="clabel">Describe your icon</div>
-    <textarea bind:value={aiPrompt} class="cinp" style="height:80px;resize:none;margin-bottom:10px;font-family:inherit" placeholder="e.g. A red star with a gold border..."></textarea>
-    <button class="icon-btn accent-btn" disabled={aiGenerating} onclick={generateWithAI}>
-      {aiGenerating ? 'Generating...' : 'Generate Icon'}
-    </button>
+    <input type="text" class="cinp" placeholder="Describe an icon to generate..." bind:value={aiPrompt}
+      onkeydown={e => { if (e.key === 'Enter') generateWithAI(); }} />
+    <button class="icon-btn accent-btn" style="margin-top:8px" onclick={generateWithAI} disabled={aiGenerating}>Generate Icon</button>
     <div class="ai-status">{aiStatus}</div>
-    <div class="sec-title small">AI History</div>
     <div class="ai-history">
-      {#if aiHistory.length === 0}
-        <span>No icons generated yet.</span>
-      {:else}
-        {#each aiHistory as h}
-          <div class="ai-hist-item">
-            <span class="ai-hist-prompt">{h.prompt}</span>
-            <span class="ai-hist-time">{h.time}</span>
-          </div>
-        {/each}
-      {/if}
+      {#each aiHistory as item}
+        <div class="ai-hist-item">
+          <div class="ai-hist-prompt">{item.prompt}</div>
+          <div class="ai-hist-time">{item.time}</div>
+        </div>
+      {/each}
     </div>
   </div>
 
